@@ -397,7 +397,7 @@ function defaultSlide(type){
 /* ============================================================
    슬라이드 렌더링 (미리보기·썸네일·내보내기 공통)
    ============================================================ */
-function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function nl2br(s){ return esc(s).replace(/\n/g,'<br>'); }
 
 function fmtHL(s, color){
@@ -619,7 +619,7 @@ function slideHTML(slide, idx, total){
     const bullets = (d.bullets||'').split('\n').filter(x=>x.trim());
     const items = bullets.length ? `<div style="margin-top:40px">` + bullets.map((b,bi)=>`
       <div style="display:flex;align-items:center;gap:26px;border-radius:18px;padding:32px 38px;margin-top:18px;${cardCss || `background:${cardBg};box-shadow:${shadow};${cardEdge}`}">
-        <div style="font-size:40px;font-weight:900;color:${isMag?'#B7CBE3':(sty==='retro'?'#1D2B66':t.primary)};letter-spacing:-0.02em;flex:none">${String(bi+1).padStart(2,'0')}</div>
+        <div style="font-size:40px;font-weight:900;color:${isMag?'#B7CBE3':(sty==='retro'?'#1D2B66':(sty==='grid'?'#AEB9CC':t.primary))};letter-spacing:-0.02em;flex:none">${String(bi+1).padStart(2,'0')}</div>
         <div style="font-size:34px;font-weight:600;color:${cardCss?cardText:t.text};letter-spacing:-0.02em;word-break:keep-all">${esc(b)}</div>
       </div>`).join('') + `</div>` : '';
     const bodySize = bullets.length ? 34 : 38;
@@ -940,8 +940,14 @@ document.addEventListener('change', e=>{
   const ct = CONTENT_TYPES[state.contentType];
   document.getElementById('ctNote').textContent = ct.note;
   if (ct.disc){
-    state.slides.forEach(s=>{ if (s.type==='ending') s.data.disclaimer = ct.disc; });
-    toast('마무리 슬라이드에 이 유형의 필수 문구를 적용했습니다');
+    // 사용자가 유의문구를 직접 수정(심사필 번호 등)했는지 감지 → 덮어쓰기 전 확인
+    const known = Object.values(CONTENT_TYPES).map(c=>c.disc).filter(Boolean);
+    const custom = state.slides.some(s=>{ if (s.type!=='ending') return false;
+      const cur=(s.data.disclaimer||'').trim(); return cur && !known.includes(cur); });
+    if (!custom || confirm('마무리 슬라이드의 유의문구를 직접 수정하셨습니다.\n선택한 유형의 기본 문구로 교체하면 심사필 번호 등 직접 입력한 내용이 사라집니다.\n\n교체할까요?')){
+      state.slides.forEach(s=>{ if (s.type==='ending') s.data.disclaimer = ct.disc; });
+      toast('마무리 슬라이드에 이 유형의 필수 문구를 적용했습니다');
+    }
   }
   render(); renderPanel();
 });
@@ -980,6 +986,9 @@ function addSlide(type){
 }
 function delSlide(i){
   state.slides.splice(i,1);
+  if (i < state.sel) state.sel--;                       // 앞 슬라이드 삭제 시 선택 유지
+  if (state.sel > state.slides.length-1) state.sel = state.slides.length-1;
+  if (state.sel < 0) state.sel = 0;
   render(); renderPanel();
 }
 function moveSlide(i,dir){
@@ -1012,33 +1021,42 @@ async function slideToPNG(slide, idx, total){
   const loaded = new Promise((res,rej)=>{img.onload=res; img.onerror=rej;});
   img.src = 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
   await loaded;
-  await new Promise(r=>setTimeout(r,60)); // 폰트/이미지 래스터 안정화
+  // 이미지 디코드 완료를 명시적으로 대기 (큰 사진 data URI가 래스터되기 전에 그려지는 문제 방지)
+  if (img.decode){ try{ await img.decode(); }catch(e){} }
+  // 슬라이드에 사진/템플릿이 있으면 래스터 안정화 대기를 늘림
+  const heavy = !!(slide.data.img || slide.data.tpl);
+  await new Promise(r=>setTimeout(r, heavy?260:80));
   const c = document.createElement('canvas');
   c.width=1080; c.height=1350;
   const ctx = c.getContext('2d');
   ctx.drawImage(img,0,0,1080,1350);
-  return new Promise(res=>c.toBlob(res,'image/png'));
+  return new Promise((res,rej)=>c.toBlob(b=> b?res(b):rej(new Error('이미지 변환 실패')),'image/png'));
 }
 async function exportOne(){
   if (!state.slides.length) return;
   if (!confirmCompliance()) return;
   toast('내보내는 중…');
-  const blob = await slideToPNG(state.slides[state.sel], state.sel, state.slides.length);
-  download(`slide-${String(state.sel+1).padStart(2,'0')}.png`, blob);
-  toast('PNG 저장 완료');
+  try{
+    const blob = await slideToPNG(state.slides[state.sel], state.sel, state.slides.length);
+    download(`slide-${String(state.sel+1).padStart(2,'0')}.png`, blob);
+    toast('PNG 저장 완료');
+  }catch(e){ toast('내보내기 실패 — 데스크톱 크롬/엣지에서 다시 시도해 주세요'); }
 }
 async function exportAll(){
   if (!state.slides.length) return;
   if (!confirmCompliance()) return;
-  for (let i=0;i<state.slides.length;i++){
-    toast(`내보내는 중… ${i+1}/${state.slides.length}`);
-    const blob = await slideToPNG(state.slides[i], i, state.slides.length);
-    download(`slide-${String(i+1).padStart(2,'0')}.png`, blob);
-    await new Promise(r=>setTimeout(r,350));
-  }
-  toast('전체 PNG 저장 완료 — 다운로드 폴더 확인');
+  try{
+    for (let i=0;i<state.slides.length;i++){
+      toast(`내보내는 중… ${i+1}/${state.slides.length}`);
+      const blob = await slideToPNG(state.slides[i], i, state.slides.length);
+      download(`slide-${String(i+1).padStart(2,'0')}.png`, blob);
+      await new Promise(r=>setTimeout(r,350));
+    }
+    toast('전체 PNG 저장 완료 — 다운로드 폴더 확인');
+  }catch(e){ toast('내보내기 실패 — 데스크톱 크롬/엣지에서 다시 시도해 주세요'); }
 }
 function download(name, blob){
+  if (!blob) throw new Error('빈 파일');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = name;
@@ -1086,12 +1104,17 @@ function svgSlide(slide, idx, total){
   const adj = d.adj||{};
   const S = v => Math.round(v * t.scale/100 * ((adj.scale||100)/100));
   const W=1080, H=1350, M=84, CW=W-2*M;
-  const logoC = LOGO_COLORS[t.logo]||'#111111';
-  const bodyC = t.dark ? (styleOf(t)!=='clean'?'#FFFFFF':'#C6D2E2') : '#555555';
+  const coverBg = slide.type==='cover' && !d.tpl && !!d.img; // 표지 배경사진
+  const logoC = coverBg ? '#FFFFFF' : (LOGO_COLORS[t.logo]||'#111111');
+  const bodyC = coverBg ? 'rgba(255,255,255,.86)' : (t.dark ? (styleOf(t)!=='clean'?'#FFFFFF':'#C6D2E2') : '#555555');
   const isLast = idx===total-1;
   const P = [];
   // 배경
   P.push(`<rect width="${W}" height="${H}" fill="${t.bg}"/>`);
+  if (coverBg){
+    P.push(`<image href="${d.img}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="xMidYMid slice"/>`);
+    P.push(`<defs><linearGradient id="cov${idx}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16243C" stop-opacity="0.28"/><stop offset="0.82" stop-color="#16243C" stop-opacity="0.84"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#cov${idx})"/>`);
+  }
   const tplMode = !!d.tpl;
   if (tplMode){
     if (d.img) P.push(`<image href="${d.img}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="xMidYMid slice"/>`);
@@ -1101,17 +1124,21 @@ function svgSlide(slide, idx, total){
     P.push(`<g transform="translate(${M},80)" fill="${logoC}">${LOGO_PATHS}</g>`);
     if (t.pager==='frac' && total>1)
       P.push(svgText([`${String(idx+1).padStart(2,'0')} / ${String(total).padStart(2,'0')}`], W-M, 110, 30, 800, t.text, 1.2, 'end'));
+    else if (t.pager==='dots' && total>1){
+      let dx = W-M;
+      for (let i=total-1;i>=0;i--){ const w=i===idx?30:10; dx-=w; P.push(`<rect x="${dx}" y="94" width="${w}" height="10" rx="5" fill="${t.primary}" opacity="${i===idx?1:.3}"/>`); dx-=8; }
+    }
     // 하단: 시리즈 라벨 + 화살표/FIN
-    const lblC = t.dark ? 'rgba(255,255,255,.78)' : '#8AA6CC';
-    const arrC = t.dark ? '#FFFFFF' : t.primary;
+    const lblC = coverBg ? 'rgba(255,255,255,.78)' : (t.dark ? 'rgba(255,255,255,.78)' : '#8AA6CC');
+    const arrC = coverBg ? '#FFFFFF' : (t.dark ? '#FFFFFF' : t.primary);
     P.push(`<text x="${M}" y="${H-74}" font-family="Pretendard, sans-serif" font-size="23" font-weight="700" letter-spacing="6.9" fill="${lblC}">${esc(t.footerLabel||'')}</text>`);
     P.push(isLast
       ? `<rect x="${W-M-104}" y="${H-92}" width="12" height="12" fill="${arrC}"/><text x="${W-M}" y="${H-80}" font-size="24" font-weight="700" letter-spacing="6.7" fill="${arrC}" text-anchor="end" font-family="Pretendard, sans-serif">FIN</text>`
       : `<path d="M${W-M-66} ${H-88}h60m-7-6l7 6-7 6" fill="none" stroke="${arrC}" stroke-width="2.5"/>`);
   }
   const adjY = adj.y||0;
-  const tcT = tplMode ? ((adj.color||'').trim()||t.text) : t.text;
-  const tcB = tplMode ? ((adj.color||'').trim()||bodyC) : bodyC;
+  const tcT = coverBg ? '#FFFFFF' : (tplMode ? ((adj.color||'').trim()||t.text) : t.text);
+  const tcB = coverBg ? bodyC : (tplMode ? ((adj.color||'').trim()||bodyC) : bodyC);
 
   if (slide.type==='cover'){
     const tSize = S(94), tLines = wrapLines(d.title, 900, tSize, CW);
@@ -1260,11 +1287,20 @@ function copyAllText(){
       .filter(v=>(v||'').trim()).map(plainTxt);
     return `[${i+1} ${TYPE_LABEL[s.type]}]\n`+fields.join('\n');
   }).join('\n\n');
-  const ta = document.createElement('textarea');
-  ta.value = out; document.body.appendChild(ta); ta.select();
-  try{ document.execCommand('copy'); toast('전체 텍스트를 클립보드에 복사했습니다'); }
-  catch(e){ toast('복사 실패 — 프로젝트 저장을 이용하세요'); }
-  ta.remove();
+  // 최신 클립보드 API 우선, 실패 시 execCommand 폴백 — 실제 성공 여부를 확인해 토스트 표시
+  const fallback = ()=>{
+    const ta = document.createElement('textarea');
+    ta.value = out; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    let ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+    ta.remove();
+    toast(ok ? '전체 텍스트를 클립보드에 복사했습니다' : '복사 실패 — 프로젝트 저장을 이용하세요');
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(out)
+      .then(()=>toast('전체 텍스트를 클립보드에 복사했습니다'))
+      .catch(fallback);
+  } else fallback();
 }
 
 /* ============================================================
@@ -1283,7 +1319,12 @@ function loadProject(){
     r.onload = ()=>{ try{
       const pj = JSON.parse(r.result);
       if (!pj.slides){ toast('프로젝트 파일이 아닙니다'); return; }
-      state.theme = pj.theme; state.slides = pj.slides; state.sel = 0;
+      // 구버전/부분 테마 방어: 프리셋 기본값 + 공통 기본값 위에 저장된 값을 병합 (누락 필드로 인한 NaN 방지)
+      const baseP = PRESETS[(pj.theme&&pj.theme.preset)] || PRESETS.magazine;
+      state.theme = { preset:'magazine', ...JSON.parse(JSON.stringify(baseP)),
+        badge:'한국투자신탁운용 서포터즈', handle:'@kim_supporters', footerLabel:'SUPPORTERS LOG',
+        redDot:'on', pager:'frac', scale:100, ...(pj.theme||{}) };
+      state.slides = pj.slides; state.sel = 0;
       if (pj.contentType && CONTENT_TYPES[pj.contentType]) state.contentType = pj.contentType;
       renderTypePanel(); renderThemePanel(); render(); renderPanel(); toast('프로젝트를 불러왔습니다');
     }catch(e){ toast('파일을 읽을 수 없습니다'); } };
@@ -1311,6 +1352,16 @@ function toast(msg){
 state.slides = [defaultSlide('cover'), defaultSlide('photo'), defaultSlide('photo'), defaultSlide('ending')];
 // 디버그/딥링크: ?preset=navy&sel=2 로 특정 프리셋·슬라이드 바로 열기
 const _q = new URLSearchParams(location.search);
+// 예시 콘텐츠: ?demo=etf → ETF 기초 카드뉴스 샘플 로드
+if (_q.get('demo')==='etf'){
+  state.contentType = 'edu';
+  state.slides = [
+    {type:'cover', data:{ title:'월급의 일부,\n**ETF**로 시작해볼까?', subtitle:'사회초년생을 위한 3분 ETF 입문', ghost:'ETF', img:null, pan:{x:50,y:50,zoom:100}, adj:{y:0,scale:100,color:''} }},
+    {type:'text', data:{ label:'STEP 1 · 개념', title:'**ETF**가 대체 뭔가요?', body:'여러 종목을 한 바구니에 담아 거래소에 상장한 펀드예요. 주식처럼 실시간으로 사고팔 수 있어서, 한 번의 매수로 자연스럽게 분산투자가 됩니다.', bullets:'실시간으로 사고팔 수 있어요\n한 종목으로 여러 기업에 분산\n소액으로도 시작 가능', adj:{y:0,scale:100,color:''} }},
+    {type:'text', data:{ label:'STEP 2 · 습관', title:'매달 **자동으로**\n쌓는 습관', body:'타이밍을 맞추려 애쓰기보다, 매달 정해진 날 일정 금액을 꾸준히 넣는 방식이 마음이 편해요. 오르내림에 흔들리지 않고 오래 지속하는 것이 핵심입니다.', bullets:'매달 같은 날, 같은 금액\n가격이 아니라 시간에 투자\n길게 볼수록 힘이 커져요', adj:{y:0,scale:100,color:''} }},
+    {type:'ending', data:{ title:'오늘의 한 줄', summary:'ETF는 \'여러 기업을 한 번에\' 담는\n가장 쉬운 분산투자예요.', cta:'금융 이야기 더 보기', disclaimer:'본 콘텐츠는 한국투자신탁운용 ACE ETF 서포터즈가 정보 전달을 목적으로 제작한 콘텐츠로, 특정 금융투자상품의 매수·매도 권유가 아닙니다.', adj:{y:0,scale:100,color:''} }},
+  ];
+}
 if (_q.get('preset') && PRESETS[_q.get('preset')]) applyPreset(_q.get('preset'));
 if (_q.get('sel')) state.sel = Math.min(state.slides.length-1, Math.max(0, +_q.get('sel')||0));
 if (_q.get('ct') && CONTENT_TYPES[_q.get('ct')]){

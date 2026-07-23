@@ -41,7 +41,19 @@
       "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '깃허브 페이지 자동 배포 워크플로우 추가 *)",
       "Bash(git remote *)",
       "Bash(git ls-remote *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(rm -rf /Users/yjw/.cache/chrome-con)",
+      "Bash(mkdir -p /Users/yjw/.cache/chrome-con)",
+      "Bash(timeout 40 '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --user-data-dir=/Users/yjw/.cache/chrome-con --enable-logging=stderr --v=0 --virtual-time-budget=5000 --run-all-compositor-stages-before-draw --dump-dom 'file:///Users/yjw/Desktop/클로드-피그마 디자인 연결 프로그램/generator/index.html')",
+      "Bash(grep -vE '>\\\\$\\\\{esc')",
+      "Bash(ls -la /Users/yjw/.claude/projects/-Users-yjw-Desktop--------------------/1dd93ec0-deda-44d9-9269-4b4ee9384ea7/subagents/workflows/wf_c98be17f-323/journal.jsonl)",
+      "Bash(echo \"=== 결과 레코드 수 ===\")",
+      "Bash(grep -c '\"type\":\"result\"' /Users/yjw/.claude/projects/-Users-yjw-Desktop--------------------/1dd93ec0-deda-44d9-9269-4b4ee9384ea7/subagents/workflows/wf_c98be17f-323/journal.jsonl)",
+      "Bash(echo \"=== 각 result의 label과 요약 추출 ===\")",
+      "Bash(xargs -I{} sed -n '{}p' generator/index.html)",
+      "Bash(pkill -f \"chrome-log\")",
+      "Bash(pkill -f \"chrome-q\")",
+      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '코드 전수 리뷰 후 결함 8건 수정 *)"
     ]
   }
 }
