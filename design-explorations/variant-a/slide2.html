@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  html,body{margin:0;padding:0;width:1080px;height:1350px;overflow:hidden;background:#FFFFFF;}
+  body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;color:#111111;position:relative;-webkit-font-smoothing:antialiased;}
+  /* ---------- shared frame ---------- */
+  .logo{position:absolute;left:84px;top:84px;}
+  .page{position:absolute;right:84px;top:94px;font-size:26px;font-weight:600;letter-spacing:0.02em;font-variant-numeric:tabular-nums;color:#111111;}
+  .page .total{color:#767676;}
+  .rule-top{position:absolute;left:84px;right:84px;top:168px;height:2px;background:#DDDDDD;}
+  .rule-top .progress{position:absolute;left:0;top:0;height:2px;width:456px;background:#5278AE;}
+  .rule-bottom{position:absolute;left:84px;right:84px;top:1216px;height:1px;background:#DDDDDD;}
+  .footer-left{position:absolute;left:84px;top:1243px;font-size:18px;font-weight:600;letter-spacing:0.22em;color:#767676;}
+  .footer-right{position:absolute;right:84px;top:1238px;font-size:24px;font-weight:700;color:#111111;letter-spacing:-0.02em;}
+  .footer-right .arrow{display:inline-block;margin-left:14px;color:#5278AE;font-weight:800;}
+  .step{position:absolute;left:84px;top:240px;display:flex;align-items:center;gap:16px;}
+  .step .sq{width:13px;height:13px;background:#5278AE;}
+  .step .no{font-size:27px;font-weight:800;color:#5278AE;letter-spacing:0.06em;}
+  .step .divider{width:1px;height:22px;background:#DDDDDD;}
+  .step .name{font-size:27px;font-weight:600;color:#111111;letter-spacing:-0.02em;}
+  /* ---------- slide 2 ---------- */
+  .title{position:absolute;left:84px;top:318px;font-size:94px;font-weight:800;
+         line-height:1.18;letter-spacing:-0.035em;color:#111111;}
+  .title .blue{color:#5278AE;}
+  .body{position:absolute;left:84px;top:604px;width:800px;font-size:36px;font-weight:400;
+        line-height:1.58;letter-spacing:-0.025em;color:#444444;word-break:keep-all;}
+  .body b{font-weight:700;color:#111111;}
+  .points{position:absolute;left:84px;right:84px;top:830px;}
+  .point{display:flex;align-items:center;height:106px;border-top:1px solid #DDDDDD;}
+  .point:first-child{border-top:2px solid #111111;}
+  .point:last-child{border-bottom:1px solid #DDDDDD;}
+  .point .no{width:88px;font-size:28px;font-weight:800;color:#5278AE;font-variant-numeric:tabular-nums;}
+  .point .txt{font-size:38px;font-weight:700;letter-spacing:-0.03em;color:#111111;}
+  .point .tail{margin-left:auto;width:11px;height:11px;background:#8AA6CC;}
+</style>
+</head>
+<body>
+
+  <svg class="logo" xmlns="http://www.w3.org/2000/svg" width="164" height="42" viewBox="0 0 156 40" preserveAspectRatio="xMinYMid meet">
+    <path style="fill:none" d="M0 0h156v40H0z"/>
+    <path d="M239.615 231.862V229.6h5.6v-1.44a5.005 5.005 0 0 0-.262-1.633h3.539v3.07h5.594v2.265h-2.845a4.98 4.98 0 0 1 1.241 3.253 5.648 5.648 0 0 1-11.269 0 4.993 4.993 0 0 1 1.241-3.253zm5.662 18.124a.831.831 0 0 1-.8-.8v-4.332a5.657 5.657 0 0 0-.4-2.4h3.574v5.256h11.921v2.267zm1.57-17.878a3.053 3.053 0 1 0 2.544 3.007 2.763 2.763 0 0 0-2.544-3.007zm12.476 3.134v5.315a15.326 15.326 0 0 1-.2 2.675h-2.972v-14.157a5.945 5.945 0 0 0-.395-2.421h3.57v6.324h3.231v2.263z" transform="translate(-239.613 -216.875)" style="fill:#111"/>
+    <path d="M292.466 233.852v-3.617h-12.1v-2.265h15.26v5.35a11.075 11.075 0 0 1-.4 2.8h3.4v2.269h-9.4v3.9h6.147v5.687a15.448 15.448 0 0 1-.2 2.671h-2.97v-6.084h-11.836v-2.274h5.678v-3.9h-8.675v-2.269h14.89a12.815 12.815 0 0 0 .206-2.268z" transform="translate(-253.855 -217.419)" style="fill:#111"/>
+    <path d="M325.623 244.361v3.506a15.965 15.965 0 0 1-.18 2.5h-3.093v-6h-9.595v-2.319h22.461v2.319zm-6.687-6.9h13.592v2.317h-16.016a.842.842 0 0 1-.822-.805v-7.681a6.3 6.3 0 0 0-.389-2.47h17.1v2.336h-13.466v1.991h13.291v2.19h-13.291z" transform="translate(-267.203 -217.739)" style="fill:#111"/>
+    <path d="M360.448 235.068c0 3.867 2.643 8.107 6.367 9.336l-1.62 1.813a12.474 12.474 0 0 1-6.5-5.228 12.508 12.508 0 0 1-6.515 5.228l-1.611-1.813c3.714-1.229 6.35-5.469 6.35-9.336v-3.021h-4.739v-2.469h13.02v2.469h-4.748zm10.918 3.288v9.31a17.239 17.239 0 0 1-.217 2.926h-3.237v-20.053a6.374 6.374 0 0 0-.44-2.626h3.894v7.977h3.515v2.466z" transform="translate(-281.469 -217.398)" style="fill:#111"/>
+    <path d="M410.607 230.381a5.989 5.989 0 0 1-3.587-2.573 5.993 5.993 0 0 1-3.588 2.573l-.914-1.005a4.482 4.482 0 0 0 3.509-4.208v-.46a4.564 4.564 0 0 0-.18-1.4h2.165v1.862a4.482 4.482 0 0 0 3.514 4.208l-.918 1.005m-4.123 5.764a.5.5 0 0 1-.488-.47v-2.892a3.4 3.4 0 0 0-.244-1.431h2.184v3.442h7.08v1.351h-8.532m8.256-4.03h-1.817v-8.206a3.441 3.441 0 0 0-.247-1.446h2.186v8.055a8.9 8.9 0 0 1-.124 1.595z" transform="translate(-301.063 -215.342)" style="fill:#111"/>
+    <path d="M427.77 228.491h4.63a10.975 10.975 0 0 0 2.314-.242v-4.015a3.5 3.5 0 0 0-.241-1.442h2.147v2.622h1.952v1.354h-1.952v2.164a8.808 8.808 0 0 1-.121 1.6h-1.784V229.5a9.1 9.1 0 0 1-2.479.348h-5.892a.5.5 0 0 1-.48-.471v-4.394a3.412 3.412 0 0 0-.241-1.428h6.853v1.345h-4.706v1.118h4.645v1.28h-4.645v1.19m8.659 7.82h-1.792v-3.743h-7.625v-1.354h9.532v3.5a9.63 9.63 0 0 1-.115 1.599z" transform="translate(-309.779 -215.466)" style="fill:#111"/>
+    <path d="M454.545 230.769v1.3a9.636 9.636 0 0 1-.1 1.445h-1.782v-2.748h-5.729v-1.351h12.93v1.351h-5.318m-5.157 5.552a.489.489 0 0 1-.472-.466v-2.281a3.417 3.417 0 0 0-.237-1.423h2.1v2.821h7.462v1.35h-8.857m4.013-7.876a3.434 3.434 0 0 1-3.676-3.185 3.7 3.7 0 0 1 7.346 0 3.432 3.432 0 0 1-3.67 3.185m0-5.067a1.912 1.912 0 0 0-1.823 1.882 1.822 1.822 0 1 0 3.643 0 1.912 1.912 0 0 0-1.818-1.88z" transform="translate(-317.816 -215.179)" style="fill:#111"/>
+    <path d="M478.283 227.546v1.38h3.762v1.35h-12.931v-1.35h3.761v-.485a3.981 3.981 0 0 0-.1-.9h.836a2.948 2.948 0 0 1-1.57-2.535 3.575 3.575 0 0 1 7.081 0 2.916 2.916 0 0 1-1.584 2.535h.748m-2.705 9.044c-1.9 0-3.469-1.245-3.469-2.885a3.518 3.518 0 0 1 6.937 0c0 1.64-1.57 2.885-3.468 2.885m0-13.31a1.754 1.754 0 0 0-1.687 1.731 1.689 1.689 0 1 0 3.377 0 1.754 1.754 0 0 0-1.69-1.731m0 8.849a1.641 1.641 0 0 0-1.617 1.577 1.617 1.617 0 0 0 3.233 0 1.639 1.639 0 0 0-1.617-1.577m-.879-3.2h1.761v-.485c0-.153-.013-.318-.028-.487a3.955 3.955 0 0 1-.854.092 4.027 4.027 0 0 1-.879-.092z" transform="translate(-326.184 -215.142)" style="fill:#111"/>
+  </svg>
+
+  <div class="page">2 <span class="total">/ 4</span></div>
+  <div class="rule-top"><div class="progress"></div></div>
+
+  <div class="step">
+    <span class="sq"></span>
+    <span class="no">STEP 1</span>
+    <span class="divider"></span>
+    <span class="name">ETF란?</span>
+  </div>
+
+  <div class="title">주식처럼<br>사고파는 <span class="blue">펀드</span></div>
+
+  <div class="body">
+    ETF(상장지수펀드)는 특정 지수를 따라가도록<br>
+    설계되어 <b>거래소에 상장된 펀드</b>예요. 주식처럼<br>
+    실시간으로 사고팔 수 있습니다.
+  </div>
+
+  <div class="points">
+    <div class="point"><span class="no">01</span><span class="txt">실시간 매매 가능</span><span class="tail"></span></div>
+    <div class="point"><span class="no">02</span><span class="txt">한 종목으로 분산투자</span><span class="tail"></span></div>
+    <div class="point"><span class="no">03</span><span class="txt">상대적으로 낮은 보수</span><span class="tail"></span></div>
+  </div>
+
+  <div class="rule-bottom"></div>
+  <div class="footer-left">KOREA INVESTMENT MANAGEMENT</div>
+  <div class="footer-right">다음<span class="arrow">&#10141;</span></div>
+
+</body>
+</html>

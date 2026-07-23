@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{margin:0;width:1080px;height:1350px;overflow:hidden}
+  body{
+    font-family:'Pretendard',sans-serif;
+    background:#16243C;
+    position:relative;
+    color:#FFFFFF;
+    -webkit-font-smoothing:antialiased;
+  }
+  .bg{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(1000px 780px at 14% 6%, rgba(82,120,174,.20), transparent 68%),
+      linear-gradient(158deg,#243B60 0%,#16243C 62%);
+  }
+  .rings{position:absolute;top:-300px;right:-320px}
+  /* top bar */
+  .topbar{
+    position:absolute;left:84px;right:84px;top:84px;height:44px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .topbar img{height:44px;display:block}
+  .dots{display:flex;gap:10px;align-items:center}
+  .dot{width:10px;height:10px;border-radius:5px;background:rgba(138,166,204,.32)}
+  .dot.on{width:34px;background:#8AA6CC}
+  /* section label */
+  .label{
+    position:absolute;left:84px;top:252px;
+    display:inline-flex;align-items:center;
+    padding:15px 30px;border-radius:999px;
+    background:#5278AE;
+    font-size:26px;font-weight:700;letter-spacing:-0.01em;color:#FFFFFF;
+  }
+  /* title */
+  .title{
+    position:absolute;left:84px;top:352px;
+    font-size:88px;font-weight:900;line-height:1.26;letter-spacing:-0.035em;
+  }
+  .title .hl{color:#8AA6CC}
+  /* body */
+  .body{
+    position:absolute;left:84px;top:626px;width:880px;
+    font-size:36px;font-weight:400;line-height:1.55;letter-spacing:-0.02em;
+    color:rgba(220,230,242,.9);
+    word-break:keep-all;
+  }
+  .body b{font-weight:700;color:#FFFFFF}
+  /* points */
+  .points{
+    position:absolute;left:84px;right:84px;bottom:84px;
+    display:flex;flex-direction:column;gap:22px;
+  }
+  .point{
+    display:flex;align-items:center;gap:30px;
+    padding:30px 40px;border-radius:22px;
+    background:rgba(36,59,96,.78);
+    border:1px solid rgba(138,166,204,.24);
+  }
+  .point .ico{
+    width:56px;height:56px;border-radius:50%;flex:none;
+    background:#5278AE;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .point .txt{font-size:35px;font-weight:600;letter-spacing:-0.02em;color:#FFFFFF}
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <svg class="rings" width="820" height="820" viewBox="0 0 820 820" fill="none">
+    <circle cx="410" cy="410" r="196" stroke="#5278AE" stroke-opacity=".26" stroke-width="1.5"/>
+    <circle cx="410" cy="410" r="292" stroke="#5278AE" stroke-opacity=".16" stroke-width="1.5"/>
+    <circle cx="410" cy="410" r="392" stroke="#5278AE" stroke-opacity=".09" stroke-width="1.5"/>
+  </svg>
+
+  <div class="topbar">
+    <img src="../../brand/logo_korea_wh.svg" alt="한국투자신탁운용">
+    <div class="dots">
+      <div class="dot"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+
+  <div class="label">STEP 1 · ETF란?</div>
+
+  <div class="title">
+    <span class="hl">주식처럼</span><br>사고파는 펀드
+  </div>
+
+  <div class="body">
+    ETF(상장지수펀드)는 특정 지수를 따라가도록 설계되어 거래소에 상장된 펀드예요. 주식처럼 실시간으로 사고팔 수 있습니다.
+  </div>
+
+  <div class="points">
+    <div class="point">
+      <div class="ico">
+        <svg width="24" height="19" viewBox="0 0 24 19" fill="none"><path d="M2 10L9 17L22 2" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="txt">실시간 매매 가능</div>
+    </div>
+    <div class="point">
+      <div class="ico">
+        <svg width="24" height="19" viewBox="0 0 24 19" fill="none"><path d="M2 10L9 17L22 2" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="txt">한 종목으로 분산투자</div>
+    </div>
+    <div class="point">
+      <div class="ico">
+        <svg width="24" height="19" viewBox="0 0 24 19" fill="none"><path d="M2 10L9 17L22 2" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="txt">상대적으로 낮은 보수</div>
+    </div>
+  </div>
+</body>
+</html>

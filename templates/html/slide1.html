@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>slide1</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{margin:0;width:1080px;height:1350px;overflow:hidden}
+body{
+  background:#EEF3F8;
+  font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;
+  color:#111111;
+  position:relative;
+  word-break:keep-all;
+  -webkit-font-smoothing:antialiased;
+}
+/* faint magazine grid lines */
+.gridlines{position:absolute;inset:0;pointer-events:none}
+.gridlines i{position:absolute;top:0;bottom:0;width:1px;background:rgba(82,120,174,.055)}
+.gridlines i:nth-child(1){left:270px}
+.gridlines i:nth-child(2){left:540px}
+.gridlines i:nth-child(3){left:810px}
+
+/* header — anchor: top 76 / inset 84 / h 44 (identical on all 4 slides) */
+.header{position:absolute;top:76px;left:84px;right:84px;height:44px;
+  display:flex;justify-content:space-between;align-items:center}
+.header img{width:172px;height:44px;display:block}
+.folio{font-size:26px;font-weight:500;color:#8AA6CC;letter-spacing:.08em}
+.folio b{color:#5278AE;font-weight:800}
+
+/* main card — series token: radius 28 / shadow 0 18px 50px .08 */
+.card{position:absolute;left:84px;right:84px;top:252px;height:868px;
+  background:#FFFFFF;border-radius:28px;overflow:hidden;
+  box-shadow:0 18px 50px rgba(22,36,60,.08);
+  padding:76px 72px}
+/* ghost '3' — deliberate right-edge bleed crop */
+.ghost{position:absolute;right:-120px;top:104px;
+  font-size:640px;font-weight:900;line-height:1;letter-spacing:-.05em;
+  color:#E9F0F8;user-select:none}
+.badge{position:relative;display:inline-block;background:#111111;color:#FFFFFF;
+  font-size:25px;font-weight:700;letter-spacing:-.01em;
+  padding:16px 30px;border-radius:999px}
+h1{position:relative;margin-top:48px;
+  font-size:106px;font-weight:900;line-height:1.16;letter-spacing:-.04em;color:#111111}
+h1 em{font-style:normal;color:#5278AE}
+/* series rule: one red — the title-ending dot */
+.dot{display:inline-block;width:16px;height:16px;border-radius:50%;
+  background:#EE0000;margin-left:14px;margin-bottom:10px}
+.rule{position:relative;width:76px;height:5px;background:#5278AE;margin:40px 0 30px}
+.sub{position:relative;font-size:36px;font-weight:500;color:#555555;
+  letter-spacing:-.02em;line-height:1.4}
+.nums{position:absolute;left:72px;right:72px;bottom:60px;
+  display:flex;align-items:center}
+.nums .n{display:flex;flex-direction:column}
+.nums .n b{font-size:58px;font-weight:800;letter-spacing:-.02em;color:#9FBBDA;line-height:1}
+.nums .n span{margin-top:10px;font-size:23px;font-weight:700;color:#555555;letter-spacing:-.01em}
+.nums i{width:1px;height:72px;background:#CFDDEC;margin:0 44px}
+
+/* footer — anchor: bottom 74 / inset 84 (identical on all 4 slides) */
+.footer{position:absolute;left:84px;right:84px;bottom:74px;
+  display:flex;justify-content:space-between;align-items:center}
+.tag{font-size:19px;font-weight:600;letter-spacing:.24em;color:#8AA6CC}
+.swipe{display:flex;align-items:center;gap:16px;
+  font-size:24px;font-weight:600;color:#111111;letter-spacing:-.01em}
+</style>
+</head>
+<body>
+  <div class="gridlines"><i></i><i></i><i></i></div>
+
+  <div class="header">
+    <img src="../../brand/logo_korea_bk.svg" alt="한국투자신탁운용">
+    <div class="folio"><b>01</b> / 04</div>
+  </div>
+
+  <div class="card">
+    <div class="ghost">3</div>
+    <div class="badge">한국투자신탁운용 서포터즈</div>
+    <h1>ETF 투자,<br>시작 전 <em>딱 3가지만</em><br>확인하세요<span class="dot"></span></h1>
+    <div class="rule"></div>
+    <p class="sub">처음 시작하는 사람을 위한 ETF 기초 가이드</p>
+    <div class="nums">
+      <div class="n"><b>01</b><span>기초지수</span></div>
+      <i></i>
+      <div class="n"><b>02</b><span>총보수</span></div>
+      <i></i>
+      <div class="n"><b>03</b><span>거래량</span></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="tag">ETF BASIC GUIDE</span>
+    <span class="swipe">옆으로 넘겨보세요
+      <svg width="64" height="18" viewBox="0 0 64 18" fill="none">
+        <path d="M0 9h58M50 1.5L59.5 9 50 16.5" stroke="#5278AE" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  </div>
+</body>
+</html>

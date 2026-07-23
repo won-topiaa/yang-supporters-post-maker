@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>slide4</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{margin:0;width:1080px;height:1350px;overflow:hidden}
+body{
+  background:#EEF3F8;
+  font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;
+  color:#111111;
+  position:relative;
+  word-break:keep-all;
+  -webkit-font-smoothing:antialiased;
+}
+.gridlines{position:absolute;inset:0;pointer-events:none}
+.gridlines i{position:absolute;top:0;bottom:0;width:1px;background:rgba(82,120,174,.055)}
+.gridlines i:nth-child(1){left:270px}
+.gridlines i:nth-child(2){left:540px}
+.gridlines i:nth-child(3){left:810px}
+
+/* header — anchor: top 76 / inset 84 / h 44 (identical on all 4 slides) */
+.header{position:absolute;top:76px;left:84px;right:84px;height:44px;
+  display:flex;justify-content:space-between;align-items:center}
+.header img{width:172px;height:44px;display:block}
+.folio{font-size:26px;font-weight:500;color:#8AA6CC;letter-spacing:.08em}
+.folio b{color:#5278AE;font-weight:800}
+
+/* ghost quotation mark — same ghost scale, peeks from behind the card */
+.ghost{position:absolute;top:168px;right:40px;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:680px;line-height:1;color:#DCE7F3;user-select:none}
+
+/* kicker — same component as slide2·3 STEP label */
+.kicker{position:absolute;left:84px;top:238px;display:flex;align-items:center;gap:18px}
+.kicker .bar{width:44px;height:3px;background:#5278AE}
+.kicker b{font-size:26px;font-weight:800;color:#5278AE;letter-spacing:.1em}
+.kicker .sep{font-size:26px;color:#8AA6CC;font-weight:700}
+.kicker span{font-size:26px;font-weight:700;color:#111111;letter-spacing:-.01em}
+
+/* quote card — series token: radius 28 / shadow 0 18px 50px .08 */
+.quote{position:absolute;left:84px;right:84px;top:330px;height:470px;
+  background:#FFFFFF;border-radius:28px;overflow:hidden;
+  box-shadow:0 18px 50px rgba(22,36,60,.08);
+  padding:96px 72px 0}
+.quote p{font-size:70px;font-weight:900;line-height:1.32;letter-spacing:-.035em;color:#111111}
+.quote p em{font-style:normal;color:#5278AE}
+.dot{display:inline-block;width:16px;height:16px;border-radius:50%;
+  background:#EE0000;margin-left:14px;margin-bottom:8px}
+
+/* CTA */
+.cta{position:absolute;left:84px;top:872px;
+  display:inline-flex;align-items:center;gap:22px;
+  background:#5278AE;color:#FFFFFF;border-radius:999px;
+  padding:0 46px;height:96px;
+  box-shadow:0 14px 36px rgba(82,120,174,.28)}
+.cta span{font-size:30px;font-weight:600;letter-spacing:-.02em}
+.cta b{font-weight:800}
+.cta svg{flex:none}
+
+/* disclaimer */
+.disc{position:absolute;left:84px;right:84px;top:1056px;
+  border-top:1px solid #D8E2EE;padding-top:26px;
+  font-size:24px;font-weight:400;color:#6B7684;line-height:1.55;letter-spacing:-.01em}
+
+/* footer — anchor: bottom 74 / inset 84 (identical on all 4 slides) */
+.footer{position:absolute;left:84px;right:84px;bottom:74px;
+  display:flex;justify-content:space-between;align-items:center}
+.tag{font-size:19px;font-weight:600;letter-spacing:.24em;color:#8AA6CC}
+.fin{display:flex;align-items:center;gap:14px;
+  font-size:19px;font-weight:600;letter-spacing:.24em;color:#8AA6CC}
+.fin i{display:block;width:10px;height:10px;background:#5278AE}
+</style>
+</head>
+<body>
+  <div class="gridlines"><i></i><i></i><i></i></div>
+
+  <div class="header">
+    <img src="../../brand/logo_korea_bk.svg" alt="한국투자신탁운용">
+    <div class="folio"><b>04</b> / 04</div>
+  </div>
+
+  <div class="ghost">&ldquo;</div>
+
+  <div class="kicker">
+    <span class="bar"></span><b>SUMMARY</b><span class="sep">·</span><span>오늘의 한 줄 정리</span>
+  </div>
+
+  <div class="quote">
+    <p>ETF는 &lsquo;<em>지수를 통째로 사는</em>&rsquo;<br>가장 간단한 분산투자<br>도구입니다<span class="dot"></span></p>
+  </div>
+
+  <div class="cta">
+    <span>더 많은 금융 이야기, <b>@kim_supporters</b> 팔로우!</span>
+    <svg width="52" height="16" viewBox="0 0 52 16" fill="none">
+      <path d="M0 8h46M39 1.5L46.5 8 39 14.5" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <p class="disc">본 콘텐츠는 한국투자신탁운용 서포터즈가 정보 전달을 목적으로 제작한 것으로, 특정 금융투자상품의 매수&middot;매도 권유가 아닙니다. 투자의 책임은 투자자 본인에게 있습니다.</p>
+
+  <div class="footer">
+    <span class="tag">ETF BASIC GUIDE</span>
+    <span class="fin"><i></i>FIN</span>
+  </div>
+</body>
+</html>

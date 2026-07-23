@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>한국투자신탁운용 서포터즈 게시물 메이커</title>
+<style>
+  :root{
+    --ui-bg:#14171c; --ui-panel:#1c2129; --ui-panel2:#232a35; --ui-line:#2e3745;
+    --ui-text:#e8ecf2; --ui-dim:#8b96a5; --ui-accent:#5278ae; --ui-accent-hi:#6d92c7;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+    background:var(--ui-bg); color:var(--ui-text); display:flex; overflow:hidden;
+  }
+  /* ---------- 좌: 슬라이드 목록 ---------- */
+  #slideList{width:220px; min-width:220px; background:var(--ui-panel); border-right:1px solid var(--ui-line); display:flex; flex-direction:column;}
+  #slideList header{padding:16px 16px 8px; font-size:13px; font-weight:700; color:var(--ui-dim); letter-spacing:.02em;}
+  #thumbs{flex:1; overflow-y:auto; padding:8px;}
+  .thumb{position:relative; border:2px solid transparent; border-radius:10px; margin-bottom:10px; cursor:pointer; overflow:hidden; background:#000;}
+  .thumb.sel{border-color:var(--ui-accent-hi);}
+  .thumb .tlabel{position:absolute; left:8px; top:8px; background:rgba(0,0,0,.55); color:#fff; font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px; z-index:2;}
+  .thumb .twrap{width:100%; aspect-ratio:1080/1350; position:relative; overflow:hidden;}
+  .thumb .tframe{position:absolute; left:0; top:0; width:1080px; height:1350px; transform-origin:top left; pointer-events:none;}
+  .thumb .tools{position:absolute; right:6px; top:6px; display:none; gap:4px; z-index:3;}
+  .thumb:hover .tools{display:flex;}
+  .tools button{background:rgba(0,0,0,.6); color:#fff; border:0; border-radius:6px; width:24px; height:24px; font-size:12px; cursor:pointer;}
+  #addBtns{padding:10px; border-top:1px solid var(--ui-line); display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  #addBtns button{background:var(--ui-panel2); border:1px solid var(--ui-line); color:var(--ui-text); border-radius:8px; padding:9px 4px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit;}
+  #addBtns button:hover{border-color:var(--ui-accent);}
+  /* ---------- 중앙: 미리보기 ---------- */
+  #stage{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; background:
+    radial-gradient(1200px 800px at 50% 30%, #1a2027 0%, #14171c 70%);}
+  #previewWrap{position:relative; box-shadow:0 24px 80px rgba(0,0,0,.5); border-radius:4px; overflow:hidden;}
+  #preview{width:1080px; height:1350px; transform-origin:top left;}
+  #stageInfo{position:absolute; bottom:18px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--ui-dim);}
+  /* ---------- 우: 편집 패널 ---------- */
+  #panel{width:340px; min-width:340px; background:var(--ui-panel); border-left:1px solid var(--ui-line); overflow-y:auto;}
+  #panel section{padding:16px; border-bottom:1px solid var(--ui-line);}
+  #panel h3{margin:0 0 12px; font-size:13px; font-weight:800; color:var(--ui-dim); letter-spacing:.04em;}
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-size:12px; font-weight:600; color:var(--ui-dim); margin-bottom:5px;}
+  .field input[type=text], .field textarea, .field select{
+    width:100%; background:var(--ui-panel2); border:1px solid var(--ui-line); color:var(--ui-text);
+    border-radius:8px; padding:9px 10px; font-size:13px; font-family:inherit; resize:vertical;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus{outline:none; border-color:var(--ui-accent);}
+  .field input[type=range]{width:100%;}
+  .field input[type=color]{width:42px; height:30px; border:1px solid var(--ui-line); border-radius:6px; background:none; padding:2px; cursor:pointer;}
+  .row{display:flex; gap:10px; align-items:center;}
+  .row .field{flex:1;}
+  .btn{display:inline-block; background:var(--ui-accent); color:#fff; border:0; border-radius:8px; padding:10px 14px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;}
+  .btn.sub{background:var(--ui-panel2); border:1px solid var(--ui-line);}
+  .btn.wide{width:100%; text-align:center; margin-bottom:8px;}
+  .btn:hover{filter:brightness(1.12);}
+  .drop{border:2px dashed var(--ui-line); border-radius:10px; padding:18px 10px; text-align:center; font-size:12px; color:var(--ui-dim); cursor:pointer; transition:.15s;}
+  .drop.over,.drop:hover{border-color:var(--ui-accent); color:var(--ui-text);}
+  .hint{font-size:11px; color:var(--ui-dim); line-height:1.5; margin-top:6px;}
+  .preset{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px;}
+  .preset button{border:2px solid var(--ui-line); border-radius:10px; padding:0; cursor:pointer; overflow:hidden; background:none; height:64px; position:relative;}
+  .preset button.sel{border-color:var(--ui-accent-hi);}
+  .preset button span{position:absolute; bottom:4px; left:0; right:0; font-size:10px; font-weight:700; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.6); font-family:inherit;}
+  #toast{position:fixed; bottom:24px; right:24px; background:var(--ui-accent); color:#fff; padding:12px 18px; border-radius:10px; font-size:13px; font-weight:600; opacity:0; transform:translateY(8px); transition:.25s; pointer-events:none; z-index:99;}
+  #toast.on{opacity:1; transform:none;}
+
+  /* ================= 슬라이드 캔버스 공통 (미리보기+내보내기 동일 CSS) ================= */
+  .canvas{width:1080px; height:1350px; position:relative; overflow:hidden; font-family:'Pretendard','Apple SD Gothic Neo',sans-serif; -webkit-font-smoothing:antialiased;}
+</style>
+</head>
+<body>
+
+<!-- 좌측: 슬라이드 목록 -->
+<div id="slideList">
+  <header>슬라이드</header>
+  <div id="thumbs"></div>
+  <div id="addBtns">
+    <button onclick="addSlide('cover')">+ 표지</button>
+    <button onclick="addSlide('photo')">+ 사진</button>
+    <button onclick="addSlide('text')">+ 텍스트</button>
+    <button onclick="addSlide('ending')">+ 마무리</button>
+  </div>
+</div>
+
+<!-- 중앙: 미리보기 -->
+<div id="stage">
+  <div id="previewWrap"><div id="preview"></div></div>
+  <div id="stageInfo">1080 × 1350 (인스타그램 4:5) · 사진은 미리보기에서 드래그해 위치 조정</div>
+</div>
+
+<!-- 우측: 편집 패널 -->
+<div id="panel">
+  <section id="slidePanel"></section>
+  <section>
+    <h3>콘텐츠 유형 · 준수사항</h3>
+    <div class="field"><label>콘텐츠 유형 (서포터즈 교육자료 기준)</label><select id="ctType"></select></div>
+    <p class="hint" id="ctNote"></p>
+    <button class="btn sub wide" onclick="openGuide()">제작 체크리스트 보기</button>
+  </section>
+  <section>
+    <h3>테마 · 컨셉</h3>
+    <div class="preset" id="presetBox"></div>
+    <div class="row">
+      <div class="field"><label>포인트 컬러</label><input type="color" id="thPrimary"></div>
+      <div class="field"><label>배경 컬러</label><input type="color" id="thBg"></div>
+      <div class="field"><label>텍스트 컬러</label><input type="color" id="thText"></div>
+    </div>
+    <div class="field"><label>상단 배지 문구</label><input type="text" id="thBadge"></div>
+    <div class="row">
+      <div class="field"><label>계정 핸들</label><input type="text" id="thHandle"></div>
+      <div class="field"><label>푸터 시리즈 라벨 (영문 권장)</label><input type="text" id="thFooterLabel"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>로고 색상</label>
+        <select id="thLogo"><option value="bk">블랙</option><option value="wh">화이트</option><option value="blue">블루</option></select>
+      </div>
+      <div class="field"><label>페이지 표시</label>
+        <select id="thPager"><option value="frac">숫자 (01/04)</option><option value="dots">도트</option><option value="none">없음</option></select>
+      </div>
+      <div class="field"><label>레드 도트</label>
+        <select id="thRedDot"><option value="on">사용</option><option value="off">미사용</option></select>
+      </div>
+    </div>
+    <div class="field"><label>타이틀 크기 <span id="thScaleV"></span></label><input type="range" id="thScale" min="80" max="120" value="100"></div>
+    <div class="row">
+      <button class="btn sub" style="flex:1" onclick="exportTheme()">테마 내보내기</button>
+      <button class="btn sub" style="flex:1" onclick="importTheme()">테마 가져오기</button>
+    </div>
+    <p class="hint">테마 JSON을 저장해두면 언제든 같은 컨셉을 다시 불러올 수 있습니다. 프리셋을 바꿔도 입력한 사진·글은 유지됩니다.</p>
+  </section>
+  <section>
+    <h3>내보내기</h3>
+    <button class="btn wide" onclick="exportAll()">전체 PNG 내보내기 (1080×1350)</button>
+    <button class="btn sub wide" onclick="exportOne()">현재 슬라이드만 PNG</button>
+    <div class="row">
+      <button class="btn sub" style="flex:1" onclick="saveProject()">프로젝트 저장</button>
+      <button class="btn sub" style="flex:1" onclick="loadProject()">프로젝트 열기</button>
+    </div>
+    <p class="hint">PNG는 인스타 업로드용 완성본입니다. 프로젝트 파일(.json)에는 사진·글·테마가 모두 담깁니다.</p>
+  </section>
+  <section>
+    <h3>피그마 연동</h3>
+    <button class="btn wide" onclick="exportSVGAll()">피그마 편집용 SVG (전체)</button>
+    <button class="btn sub wide" onclick="exportSVGOne()">피그마 편집용 SVG (현재 슬라이드)</button>
+    <div class="row">
+      <button class="btn sub" style="flex:1" onclick="downloadGuide()">템플릿 가이드</button>
+      <button class="btn sub" style="flex:1" onclick="copyAllText()">텍스트 복사</button>
+    </div>
+    <p class="hint">SVG를 피그마 캔버스에 끌어다 놓으면 텍스트·도형이 <b>편집 가능한 레이어</b>로 들어갑니다 (Pretendard 폰트 설치 필요). "템플릿 가이드"는 피그마에서 템플릿을 디자인할 때 텍스트존 위치를 알려주는 밑그림입니다. 픽셀 정확한 완성본은 PNG를 사용하세요.</p>
+  </section>
+</div>
+
+<div id="guideModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;align-items:center;justify-content:center" onclick="if(event.target===this)closeGuide()">
+  <div style="background:var(--ui-panel);border:1px solid var(--ui-line);border-radius:14px;max-width:660px;max-height:82vh;overflow-y:auto;padding:26px 28px">
+    <h2 style="margin:0 0 4px;font-size:17px">제작 체크리스트</h2>
+    <p style="font-size:12px;color:var(--ui-dim);margin:0 0 16px">ACE ETF 서포터즈 콘텐츠 교육 자료 기준</p>
+    <div style="font-size:13px;line-height:1.7;color:var(--ui-text)">
+      <b style="color:var(--ui-accent-hi)">공통 (모든 콘텐츠)</b>
+      <ul style="margin:6px 0 14px;padding-left:18px">
+        <li><b>내부 심의 절차 준수</b> — 운영국의 심의 완료 회신 없이 게재 불가. 업로드 이후에도 수정 요청이 있을 수 있음</li>
+        <li><b>상품명 노출 불가</b> — 임직원이 출연하지 않는 콘텐츠에서는 구체적 상품명 언급 불가 (사진 속 노출·화면 캡처도 불가)</li>
+        <li>임직원 미출연 콘텐츠는 <b>ACE ETF 브랜드만</b> 노출</li>
+        <li>당사 로고를 쓰는 금융정보 콘텐츠에는 <b>서포터즈 로고 또는 'ACE ETF 서포터즈' 문구</b>를 함께 기재 (공식 콘텐츠와 구분)</li>
+        <li>비속어·타인에게 불쾌감을 줄 수 있는 표현 금지</li>
+      </ul>
+      <b style="color:var(--ui-accent-hi)">유형별</b>
+      <ul style="margin:6px 0 14px;padding-left:18px">
+        <li><b>단순 홍보·밈</b> — 자유 제작 가능</li>
+        <li><b>금융 개념 소개</b> — 개념 소개까지만. 상품 추천·특정 불가</li>
+        <li><b>활동 후기</b> — 서포터즈 기간 중 활동·마무리 후기 가능</li>
+        <li><b>채널 홍보 / 이벤트 참여·시청 후기</b> — '영위업무/이용후기 광고'에 해당 → <b>필수 기재 문구 전문 + 심사필 번호</b> 삽입. 이벤트명에 상품명이 들어가면 후기 제작 불가 (예: "ACE KRX금현물 ETF 매수 이벤트 후기" 불가 / "ACE RUN 참여 후기" 가능)</li>
+        <li><b>임직원 출연</b> — 상품명 언급 가능하지만 협회 심의 필요 (영상은 스크립트→영상물 2단계 심의, 일정 여유 필수). 상품 언급 시 실적배당·원금손실 문구, 위험등급·수수료·총보수 기재, 수익률 표기 시 BM 병기·기간 요건(3년 미만: 6개월+1년 / 3년 이상: 1년+3년+설정일 이후) 확인</li>
+      </ul>
+      <b style="color:var(--ui-accent-hi)">이벤트 경품</b>
+      <ul style="margin:6px 0 14px;padding-left:18px">
+        <li>서포터즈 계정에서 서포터즈가 직접 구매·발송 불가 — 이벤트 진행·경품 발송은 사전 문의 필수</li>
+      </ul>
+      <b style="color:var(--ui-accent-hi)">심사필 번호</b>
+      <ul style="margin:6px 0 4px;padding-left:18px">
+        <li>필수 문구 속 "제00-000호(0000.00.00~0000.00.00)"는 자리표시자 — 운영국에서 실제 번호를 받아 교체할 것</li>
+      </ul>
+    </div>
+    <button class="btn wide" style="margin-top:14px" onclick="closeGuide()">닫기</button>
+  </div>
+</div>
+<div id="toast"></div>
+<input type="file" id="filePick" accept="image/*" style="display:none">
+<input type="file" id="jsonPick" accept="application/json" style="display:none">
+
+<script>
+/* ============================================================
+   공식 로고 SVG (한국투자신탁운용 워드마크 — kim.koreainvestment.com 원본)
+   ============================================================ */
+const LOGO_PATHS = `<path d="M239.615 231.862V229.6h5.6v-1.44a5.005 5.005 0 0 0-.262-1.633h3.539v3.07h5.594v2.265h-2.845a4.98 4.98 0 0 1 1.241 3.253 5.648 5.648 0 0 1-11.269 0 4.993 4.993 0 0 1 1.241-3.253zm5.662 18.124a.831.831 0 0 1-.8-.8v-4.332a5.657 5.657 0 0 0-.4-2.4h3.574v5.256h11.921v2.267zm1.57-17.878a3.053 3.053 0 1 0 2.544 3.007 2.763 2.763 0 0 0-2.544-3.007zm12.476 3.134v5.315a15.326 15.326 0 0 1-.2 2.675h-2.972v-14.157a5.945 5.945 0 0 0-.395-2.421h3.57v6.324h3.231v2.263z" transform="translate(-239.613 -216.875)"/>
+<path d="M292.466 233.852v-3.617h-12.1v-2.265h15.26v5.35a11.075 11.075 0 0 1-.4 2.8h3.4v2.269h-9.4v3.9h6.147v5.687a15.448 15.448 0 0 1-.2 2.671h-2.97v-6.084h-11.836v-2.274h5.678v-3.9h-8.675v-2.269h14.89a12.815 12.815 0 0 0 .206-2.268z" transform="translate(-253.855 -217.419)"/>
+<path d="M325.623 244.361v3.506a15.965 15.965 0 0 1-.18 2.5h-3.093v-6h-9.595v-2.319h22.461v2.319zm-6.687-6.9h13.592v2.317h-16.016a.842.842 0 0 1-.822-.805v-7.681a6.3 6.3 0 0 0-.389-2.47h17.1v2.336h-13.466v1.991h13.291v2.19h-13.291z" transform="translate(-267.203 -217.739)"/>
+<path d="M360.448 235.068c0 3.867 2.643 8.107 6.367 9.336l-1.62 1.813a12.474 12.474 0 0 1-6.5-5.228 12.508 12.508 0 0 1-6.515 5.228l-1.611-1.813c3.714-1.229 6.35-5.469 6.35-9.336v-3.021h-4.739v-2.469h13.02v2.469h-4.748zm10.918 3.288v9.31a17.239 17.239 0 0 1-.217 2.926h-3.237v-20.053a6.374 6.374 0 0 0-.44-2.626h3.894v7.977h3.515v2.466z" transform="translate(-281.469 -217.398)"/>
+<path d="M410.607 230.381a5.989 5.989 0 0 1-3.587-2.573 5.993 5.993 0 0 1-3.588 2.573l-.914-1.005a4.482 4.482 0 0 0 3.509-4.208v-.46a4.564 4.564 0 0 0-.18-1.4h2.165v1.862a4.482 4.482 0 0 0 3.514 4.208l-.918 1.005m-4.123 5.764a.5.5 0 0 1-.488-.47v-2.892a3.4 3.4 0 0 0-.244-1.431h2.184v3.442h7.08v1.351h-8.532m8.256-4.03h-1.817v-8.206a3.441 3.441 0 0 0-.247-1.446h2.186v8.055a8.9 8.9 0 0 1-.124 1.595z" transform="translate(-301.063 -215.342)"/>
+<path d="M427.77 228.491h4.63a10.975 10.975 0 0 0 2.314-.242v-4.015a3.5 3.5 0 0 0-.241-1.442h2.147v2.622h1.952v1.354h-1.952v2.164a8.808 8.808 0 0 1-.121 1.6h-1.784V229.5a9.1 9.1 0 0 1-2.479.348h-5.892a.5.5 0 0 1-.48-.471v-4.394a3.412 3.412 0 0 0-.241-1.428h6.853v1.345h-4.706v1.118h4.645v1.28h-4.645v1.19m8.659 7.82h-1.792v-3.743h-7.625v-1.354h9.532v3.5a9.63 9.63 0 0 1-.115 1.599z" transform="translate(-309.779 -215.466)"/>
+<path d="M454.545 230.769v1.3a9.636 9.636 0 0 1-.1 1.445h-1.782v-2.748h-5.729v-1.351h12.93v1.351h-5.318m-5.157 5.552a.489.489 0 0 1-.472-.466v-2.281a3.417 3.417 0 0 0-.237-1.423h2.1v2.821h7.462v1.35h-8.857m4.013-7.876a3.434 3.434 0 0 1-3.676-3.185 3.7 3.7 0 0 1 7.346 0 3.432 3.432 0 0 1-3.67 3.185m0-5.067a1.912 1.912 0 0 0-1.823 1.882 1.822 1.822 0 1 0 3.643 0 1.912 1.912 0 0 0-1.818-1.88z" transform="translate(-317.816 -215.179)"/>
+<path d="M478.283 227.546v1.38h3.762v1.35h-12.931v-1.35h3.761v-.485a3.981 3.981 0 0 0-.1-.9h.836a2.948 2.948 0 0 1-1.57-2.535 3.575 3.575 0 0 1 7.081 0 2.916 2.916 0 0 1-1.584 2.535h.748m-2.705 9.044c-1.9 0-3.469-1.245-3.469-2.885a3.518 3.518 0 0 1 6.937 0c0 1.64-1.57 2.885-3.468 2.885m0-13.31a1.754 1.754 0 0 0-1.687 1.731 1.689 1.689 0 1 0 3.377 0 1.754 1.754 0 0 0-1.69-1.731m0 8.849a1.641 1.641 0 0 0-1.617 1.577 1.617 1.617 0 0 0 3.233 0 1.639 1.639 0 0 0-1.617-1.577m-.879-3.2h1.761v-.485c0-.153-.013-.318-.028-.487a3.955 3.955 0 0 1-.854.092 4.027 4.027 0 0 1-.879-.092z" transform="translate(-326.184 -215.142)"/>`;
+function logoSVG(color, height){
+  const h = height || 40;
+  const w = Math.round(h * 156/40);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 156 40" style="display:block"><g fill="${color}">${LOGO_PATHS}</g></svg>`;
+}
+
+/* ============================================================
+   테마 프리셋 (디자인 시안 3종 기반)
+   ============================================================ */
+const PRESETS = {
+  editorial: {
+    name:'에디토리얼', style:'clean', primary:'#5278AE', bg:'#FFFFFF', text:'#111111',
+    sub:'#767676', line:'#DDDDDD', chip:'#DCE6F2', card:'#F8F8F8',
+    logo:'bk', dark:false,
+  },
+  navy: {
+    name:'딥 네이비', style:'clean', primary:'#8AA6CC', bg:'#16243C', text:'#FFFFFF',
+    sub:'#8AA6CC', line:'#33517D', chip:'#243B60', card:'#243B60',
+    logo:'wh', dark:true,
+  },
+  magazine: {
+    name:'매거진', style:'clean', primary:'#5278AE', bg:'#EEF3F8', text:'#111111',
+    sub:'#666666', line:'#DDDDDD', chip:'#DCE6F2', card:'#FFFFFF',
+    logo:'bk', dark:false,
+  },
+  retroweb: {
+    name:'레트로 웹', style:'retro', primary:'#CDF564', bg:'#5C7FF0', text:'#FFFFFF',
+    sub:'rgba(255,255,255,.85)', line:'rgba(255,255,255,.4)', chip:'rgba(255,255,255,.2)', card:'#FFFFFF', cardText:'#1D2B66',
+    logo:'wh', dark:true,
+  },
+  scrapbook: {
+    name:'스크랩북', style:'scrap', primary:'#5B7FF0', bg:'#FAF6EC', text:'#3B372E',
+    sub:'#8A8272', line:'#E2D8C2', chip:'#F1E9D7', card:'#FFFFFF', cardText:'#3B372E',
+    logo:'bk', dark:false,
+  },
+  pastelsky: {
+    name:'파스텔 스카이', style:'pastel', primary:'#2E6FDD', bg:'#D7EBFB', text:'#1C4F9E',
+    sub:'#5C7FA6', line:'#BCD8F0', chip:'#FFFFFF', card:'#FFFFFF', cardText:'#1C4F9E',
+    logo:'blue', dark:false,
+  },
+  windowos: {
+    name:'레트로 창', style:'window', primary:'#E0402E', bg:'#5E7CA3', text:'#FFFFFF',
+    sub:'rgba(255,255,255,.82)', line:'#1A1A1A', chip:'#F5E96A', card:'#FFFFFF', cardText:'#111111',
+    logo:'wh', dark:true,
+  },
+  bluegrid: {
+    name:'블루 그리드', style:'grid', primary:'#FFE14D', bg:'#49688F', text:'#FFFFFF',
+    sub:'rgba(255,255,255,.8)', line:'rgba(255,255,255,.35)', chip:'rgba(255,255,255,.15)', card:'#FFFFFF', cardText:'#1D3557',
+    logo:'wh', dark:true,
+  },
+};
+
+/* ---- 스타일 팩 (이전 기수 서포터즈 인스타 레퍼런스 기반) ---- */
+function styleOf(t){ return t.style || (PRESETS[t.preset] && PRESETS[t.preset].style) || 'clean'; }
+function styleBgLayer(t){
+  const s = styleOf(t);
+  if (s==='retro') return `<div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.13) 2.5px, transparent 2.5px);background-size:46px 46px"></div>`;
+  if (s==='scrap') return `<div style="position:absolute;inset:0;background-image:repeating-linear-gradient(180deg, transparent 0 62px, rgba(120,105,70,.13) 62px 63px)"></div>`;
+  if (s==='pastel') return `
+    <div style="position:absolute;left:-90px;top:130px;width:430px;height:130px;background:#FFFFFF;opacity:.75;border-radius:100px"></div>
+    <div style="position:absolute;right:-70px;top:320px;width:350px;height:112px;background:#FFFFFF;opacity:.55;border-radius:100px"></div>
+    <div style="position:absolute;left:110px;bottom:170px;width:310px;height:100px;background:#FFFFFF;opacity:.45;border-radius:100px"></div>`;
+  if (s==='grid') return `<div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.15) 2px, transparent 2px),linear-gradient(90deg, rgba(255,255,255,.15) 2px, transparent 2px);background-size:54px 54px"></div>`;
+  return '';
+}
+function styleHlSpan(t){
+  const s = styleOf(t);
+  if (s==='retro') return [`<span style="display:inline-block;background:#CDF564;color:#1D2B66;padding:0 22px;border-radius:14px;transform:rotate(-1.5deg)">`,`</span>`];
+  if (s==='scrap') return [`<span style="background:linear-gradient(transparent 58%, #FFE664 58%)">`,`</span>`];
+  if (s==='pastel') return [`<span style="display:inline-block;background:#FFFFFF;color:#2E6FDD;padding:0 20px;border-radius:40px;box-shadow:0 6px 18px rgba(46,111,221,.18);transform:rotate(-1deg)">`,`</span>`];
+  if (s==='window') return [`<span style="display:inline-block;background:#F5E96A;color:#111111;padding:0 18px;border:3px solid #111111;border-radius:10px;transform:rotate(-1.2deg)">`,`</span>`];
+  if (s==='grid') return [`<span style="color:#FFE14D">`,`</span>`];
+  return null;
+}
+function styleTitleCss(t){
+  const s = styleOf(t);
+  if (s==='grid') return 'text-shadow:4px 4px 0 #24466B;';
+  if (s==='retro') return 'text-shadow:5px 5px 0 rgba(29,43,102,.35);';
+  return '';
+}
+function styleBadgeCss(t){
+  const s = styleOf(t);
+  if (s==='retro') return 'background:#FFFFFF;color:#1D2B66;border-radius:0;border:3px solid #1D2B66;box-shadow:6px 6px 0 rgba(29,43,102,.35);';
+  if (s==='scrap') return 'background:#FFFFFF;border:2px dashed #B9AD90;color:#6B6350;border-radius:40px;';
+  if (s==='pastel') return 'background:#FFFFFF;color:#2E6FDD;border-radius:40px;box-shadow:0 8px 20px rgba(46,111,221,.2);';
+  if (s==='window') return 'background:#F5E96A;color:#111111;border:3px solid #111111;border-radius:8px;box-shadow:5px 5px 0 rgba(17,17,17,.3);';
+  if (s==='grid') return 'background:#FFFFFF;color:#1D3557;border-radius:40px;';
+  return '';
+}
+function styleCardCss(t){
+  const s = styleOf(t);
+  if (s==='retro') return 'background:#FFFFFF;border-radius:0;border:3px solid #1D2B66;box-shadow:8px 8px 0 rgba(29,43,102,.35);';
+  if (s==='scrap') return 'background:#FFFFFF;border-radius:6px;box-shadow:0 10px 24px rgba(80,66,35,.15);border:1px solid #EAE0CB;';
+  if (s==='pastel') return 'background:#FFFFFF;border-radius:28px;box-shadow:0 14px 34px rgba(46,111,221,.16);';
+  if (s==='window') return 'background:#FFFFFF;border-radius:10px;border:3px solid #111111;box-shadow:8px 8px 0 rgba(17,17,17,.3);';
+  if (s==='grid') return 'background:#FFFFFF;border-radius:8px;box-shadow:6px 6px 0 rgba(36,70,107,.5);';
+  return '';
+}
+function stylePhotoFrame(t){
+  const s = styleOf(t);
+  if (s==='retro') return {css:'border:6px solid #FFFFFF;border-radius:0;box-shadow:14px 14px 0 rgba(29,43,102,.35);', inner:'inset:0'};
+  if (s==='scrap') return {css:'background:#FFFFFF;border-radius:4px;transform:rotate(-1.5deg);box-shadow:0 16px 34px rgba(80,66,35,.2);', inner:'left:18px;right:18px;top:18px;bottom:72px',
+    extra:`<div style="position:absolute;left:-30px;top:-20px;width:170px;height:46px;background:rgba(255,224,130,.85);transform:rotate(-8deg)"></div>
+           <div style="position:absolute;right:-30px;top:-20px;width:170px;height:46px;background:rgba(255,224,130,.85);transform:rotate(8deg)"></div>`};
+  if (s==='pastel') return {css:'border:8px solid #FFFFFF;border-radius:40px;box-shadow:0 20px 46px rgba(46,111,221,.22);', inner:'inset:0'};
+  if (s==='window') return {css:'background:#FFFFFF;border:3px solid #111111;border-radius:12px;box-shadow:12px 12px 0 rgba(17,17,17,.35);', inner:'left:0;right:0;top:56px;bottom:0',
+    chrome:`<div style="position:absolute;left:0;top:0;right:0;height:56px;background:#F5E96A;border-bottom:3px solid #111;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:12px;padding-left:22px;z-index:2">
+      <span style="width:18px;height:18px;border-radius:50%;background:#E0402E;border:2px solid #111"></span>
+      <span style="width:18px;height:18px;border-radius:50%;background:#FFD84D;border:2px solid #111"></span>
+      <span style="width:18px;height:18px;border-radius:50%;background:#39B98A;border:2px solid #111"></span></div>`};
+  if (s==='grid') return {css:'border:4px solid #FFFFFF;border-radius:0;box-shadow:8px 8px 0 rgba(36,70,107,.5);', inner:'inset:0'};
+  return null;
+}
+function styleCoverDeco(t){
+  const s = styleOf(t);
+  if (s==='retro') return `
+    <svg width="130" height="130" viewBox="0 0 24 24" style="position:absolute;right:170px;top:430px;z-index:2"><path d="M4 2l14 10-6 1 4 8-3.2 1.6-4-8-4.8 4z" fill="#FFFFFF" stroke="#1D2B66" stroke-width="1.3"/></svg>
+    <div style="position:absolute;right:120px;top:400px;font-size:44px;font-weight:900;color:#CDF564;z-index:2">+</div>
+    <div style="position:absolute;right:330px;top:520px;font-size:32px;font-weight:900;color:#FFFFFF;opacity:.7;z-index:2">+</div>`;
+  if (s==='scrap') return `
+    <svg width="90" height="150" viewBox="0 0 30 50" style="position:absolute;right:150px;top:150px;z-index:3;transform:rotate(14deg)"><path d="M15 4c5 0 8 3 8 8v26c0 4-3 7-7 7s-7-3-7-7V14c0-2.5 1.8-4 4-4s4 1.5 4 4v22" fill="none" stroke="#9AA7B8" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <div style="position:absolute;left:150px;top:210px;font-size:52px;color:#E56A5A;transform:rotate(-10deg);z-index:2">&#10022;</div>
+    <div style="position:absolute;right:280px;bottom:210px;font-size:40px;color:#5B7FF0;transform:rotate(12deg);z-index:2">&#9825;</div>`;
+  if (s==='pastel') return `
+    <div style="position:absolute;right:190px;top:330px;font-size:56px;color:#FFFFFF;z-index:2">&#10022;</div>
+    <div style="position:absolute;right:130px;top:420px;font-size:34px;color:#2E6FDD;opacity:.5;z-index:2">&#10022;</div>`;
+  if (s==='window') return `
+    <svg width="240" height="240" viewBox="0 0 100 100" style="position:absolute;right:-10px;top:150px;z-index:2;opacity:.9">
+      <g stroke="#1A1A1A" stroke-width="3" stroke-linecap="round"><line x1="98" y1="6" x2="58" y2="34"/><line x1="99" y1="26" x2="66" y2="48"/><line x1="99" y1="48" x2="74" y2="62"/></g></svg>
+    <svg width="150" height="150" viewBox="0 0 24 24" style="position:absolute;right:190px;bottom:480px;z-index:2;transform:rotate(-12deg)"><path d="M3 14l9-9v5c7 0 9 5 9 10-2.5-3.2-5-4.5-9-4.5V20z" fill="#E0402E" stroke="#1A1A1A" stroke-width="1.2"/></svg>`;
+  if (s==='grid') return `
+    <div style="position:absolute;right:160px;top:360px;font-size:60px;color:#FFE14D;z-index:2">&#10038;</div>
+    <div style="position:absolute;right:110px;top:470px;font-size:36px;color:#FFFFFF;opacity:.65;z-index:2">&#10038;</div>`;
+  return '';
+}
+const LOGO_COLORS = { bk:'#111111', wh:'#FFFFFF', blue:'#5278AE' };
+
+/* ============================================================
+   콘텐츠 유형별 준수사항 (ACE ETF 서포터즈 콘텐츠 교육 자료 기준)
+   ============================================================ */
+const DISC_AD = "본 상품은 예금자보호법에 따라 보호되지 않습니다. 본 상품은 자산가격 변동, 환율 변동, 신용등급 하락 등에 따라 투자원금의 손실(0~100%)이 발생할 수 있으며, 그 손실은 투자자에게 귀속됩니다. 투자하시기 전에 반드시 (간이)투자설명서 및 집합투자규약을 읽어보시기 바랍니다. 금융상품판매업자는 이 금융투자상품에 관해 충분히 설명할 의무가 있으며, 투자자는 투자에 앞서 그러한 설명을 충분히 들으시기 바랍니다. 증권거래비용, ETF거래수수료 및 기타비용 등이 추가로 발생할 수 있습니다. 분배금은 발생 및 금액이 고정적이지 않으며, 분배금 지급과는 별도로 보유자산이 하락할 경우 원금손실이 발생할 수 있습니다. 한국투자신탁운용 준법감시인 심사필 제00-000호(2025.00.00~2026.00.00) [본 포스팅을 작성하기 위해 한국투자신탁운용으로부터 소정의 원고료를 지급받았습니다.]";
+const CONTENT_TYPES = {
+  promo: { name:'단순 홍보 · 밈', disc:null,
+    note:'필수 문구 없음. 비속어·타인에게 불쾌감을 줄 수 있는 표현 금지. 게재 전 운영국 심의 필수.' },
+  edu: { name:'금융 개념 소개', disc:'본 콘텐츠는 한국투자신탁운용 ACE ETF 서포터즈가 정보 전달을 목적으로 제작한 콘텐츠로, 특정 금융투자상품의 매수·매도 권유가 아닙니다.',
+    note:'상품명 언급 금지(사진 속 포함). ACE ETF 브랜드만 노출하고 서포터즈 콘텐츠임을 표기해야 합니다.' },
+  review: { name:'활동 후기', disc:'본 콘텐츠는 한국투자신탁운용 ACE ETF 서포터즈 활동의 일환으로 제작되었습니다.',
+    note:'서포터즈 기간 중 활동·마무리 후기 제작 가능. 상품명 언급은 불가.' },
+  ad: { name:'채널 홍보 · 이벤트/시청 후기 (광고 해당)', disc:DISC_AD,
+    note:'영위업무/이용후기 광고에 해당 → 필수 기재 문구 전문과 심사필 번호가 반드시 들어가야 합니다. 심사필 번호(00-000호)는 운영국에 문의해 실제 번호로 교체하세요. 이벤트명에 상품명이 들어가면 제작 불가.' },
+  staff: { name:'임직원 출연 (상품명 언급 가능)', disc:DISC_AD + ' 본 콘텐츠는 한국투자신탁운용 지원으로 제작됐습니다. 한국금융투자협회 심사필 제00-0000호(2025.00.00~2026.00.00)',
+    note:'금융투자 광고에 해당 → 협회 심의 필요(영상은 스크립트/영상물 2단계 심의). 상품 언급 시 실적배당·원금손실 문구, 위험등급·총보수 기재, 수익률 병기 규정을 확인하세요.' },
+};
+
+/* ============================================================
+   상태
+   ============================================================ */
+let state = {
+  theme: {
+    preset:'magazine',
+    ...JSON.parse(JSON.stringify(PRESETS.magazine)),
+    badge:'한국투자신탁운용 서포터즈',
+    handle:'@kim_supporters',
+    footerLabel:'SUPPORTERS LOG',
+    redDot:'on',
+    pager:'frac',
+    scale:100,
+  },
+  slides: [],
+  sel: 0,
+  contentType: 'review',
+};
+
+function defaultSlide(type){
+  const n = state.slides.length;
+  if (type==='cover') return {type, data:{
+    title:'이번 주 서포터즈\n활동 이야기', subtitle:'한국투자신탁운용 서포터즈가 전하는 소식',
+    ghost:'', img:null, pan:{x:50,y:50,zoom:100},
+  }};
+  if (type==='photo') return {type, data:{
+    title:'사진 제목을 입력하세요', desc:'이 사진에 대한 설명을 입력하세요. 두세 문장 정도가 가장 읽기 좋습니다.',
+    img:null, pan:{x:50,y:50,zoom:100},
+  }};
+  if (type==='text') return {type, data:{
+    label:'POINT', title:'핵심 메시지를 입력하세요',
+    body:'본문 내용을 입력하세요. 슬라이드 하나에는 하나의 메시지만 담는 것이 좋습니다.',
+    bullets:'첫 번째 포인트\n두 번째 포인트\n세 번째 포인트',
+  }};
+  return {type:'ending', data:{
+    title:'함께해 주셔서 감사합니다', summary:'더 많은 금융 이야기로 다시 찾아올게요.',
+    cta:'팔로우하고 다음 소식을 받아보세요',
+    disclaimer:(CONTENT_TYPES[state.contentType] && CONTENT_TYPES[state.contentType].disc) || '본 콘텐츠는 한국투자신탁운용 ACE ETF 서포터즈 활동의 일환으로 제작되었습니다.',
+  }};
+}
+
+/* ============================================================
+   슬라이드 렌더링 (미리보기·썸네일·내보내기 공통)
+   ============================================================ */
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function nl2br(s){ return esc(s).replace(/\n/g,'<br>'); }
+
+function fmtHL(s, color){
+  // **단어** → 포인트 컬러 강조
+  return nl2br(s).replace(/\*\*(.+?)\*\*/g, `<span style="color:${color}">$1</span>`);
+}
+
+function photoCSS(d){
+  const p = d.pan || {x:50,y:50,zoom:100};
+  return `background-image:url('${d.img}');background-size:${p.zoom}% auto;background-position:${p.x}% ${p.y}%;background-repeat:no-repeat;background-color:#0003;`;
+}
+
+function slideHTML(slide, idx, total){
+  const t = state.theme;
+  const d = slide.data;
+  const adj = d.adj || {};
+  const S = v => Math.round(v * t.scale/100 * ((adj.scale||100)/100));
+  const adjY = adj.y||0;
+  const textColorOv = (adj.color||'').trim() || null;
+  const M = 84; // 좌우 마진
+  const isMag = t.preset==='magazine';
+  const isLast = idx===total-1;
+  const radius = 28;
+  const shadow = t.dark ? 'none' : '0 18px 50px rgba(22,36,60,.06)';
+  const bodyGray = t.dark ? (styleOf(t)!=='clean' ? 'rgba(255,255,255,.88)' : '#C6D2E2') : '#555555';
+  const cardBg = t.dark ? 'rgba(36,59,96,.65)' : '#FFFFFF';
+  const cardEdge = t.dark ? 'border:1px solid rgba(138,166,204,.28);' : '';
+  const redDot = sz => t.redDot!=='off' ? `<span style="display:inline-block;width:${sz}px;height:${sz}px;border-radius:50%;background:#EE0000;margin-left:12px"></span>` : '';
+  const sty = styleOf(t);
+  const hl = styleHlSpan(t);
+  const fmt = s => hl ? nl2br(s).replace(/\*\*(.+?)\*\*/g, hl[0]+'$1'+hl[1]) : fmtHL(s, t.primary);
+  const cardCss = styleCardCss(t);
+  const cardText = t.cardText || t.text;
+  const kicker = txt => (txt||'').trim() ? `<div style="display:flex;align-items:center;gap:16px">
+    <div style="width:40px;height:3px;background:${t.primary}"></div>
+    <span style="font-size:27px;font-weight:800;color:${t.primary};letter-spacing:.12em">${esc(txt)}</span></div>` : '';
+  const hairlines = isMag ? [270,540,810].map(x=>`<div style="position:absolute;left:${x}px;top:0;bottom:0;width:1px;background:rgba(82,120,174,.055)"></div>`).join('') : styleBgLayer(t);
+  const ghost = (txt, top, size) => isMag ? `<div style="position:absolute;right:-14px;top:${top}px;font-size:${size}px;font-weight:900;line-height:.8;color:transparent;-webkit-text-stroke:2px #CBDAEB;letter-spacing:-.04em;z-index:0">${esc(txt)}</div>` : '';
+
+  /* ---- 상단 바: 로고 + 페이지 ---- */
+  function topBar(light){
+    const lc = light ? '#FFFFFF' : LOGO_COLORS[t.logo];
+    let pg='';
+    if (t.pager==='frac' && total>1){
+      pg = `<div style="font-size:30px;font-weight:800;color:${light?'#fff':t.text};letter-spacing:.04em">${String(idx+1).padStart(2,'0')}<span style="font-weight:500;color:${light?'rgba(255,255,255,.7)':'#8AA6CC'}"> / ${String(total).padStart(2,'0')}</span></div>`;
+    } else if (t.pager==='dots' && total>1){
+      let ds='';
+      for(let i=0;i<total;i++) ds += `<span style="display:inline-block;width:${i===idx?30:10}px;height:10px;border-radius:10px;background:${light?'#fff':t.primary};opacity:${i===idx?1:.3};margin-left:8px"></span>`;
+      pg = `<div style="line-height:0">${ds}</div>`;
+    }
+    return `<div style="position:absolute;left:${M}px;right:${M}px;top:80px;display:flex;justify-content:space-between;align-items:center;z-index:5;pointer-events:none">
+      ${logoSVG(lc, 40)}${pg}</div>`;
+  }
+  /* ---- 하단 바: 시리즈 라벨 + 화살표/FIN ---- */
+  function bottomBar(light){
+    const lblC = light ? 'rgba(255,255,255,.78)' : '#8AA6CC';
+    const arrC = light ? '#FFFFFF' : t.primary;
+    const right = isLast
+      ? `<div style="display:flex;align-items:center;gap:12px"><div style="width:12px;height:12px;background:${arrC}"></div><span style="font-size:24px;font-weight:700;letter-spacing:.28em;color:${arrC}">FIN</span></div>`
+      : `<svg width="66" height="16" viewBox="0 0 66 16"><path d="M0 8h60M53 2l7 6-7 6" fill="none" stroke="${arrC}" stroke-width="2.5"/></svg>`;
+    return `<div style="position:absolute;left:${M}px;right:${M}px;bottom:74px;display:flex;justify-content:space-between;align-items:center;z-index:5;pointer-events:none">
+      <div style="font-size:23px;font-weight:700;letter-spacing:.3em;color:${lblC}">${esc(t.footerLabel||'')}</div>${right}</div>`;
+  }
+
+  /* ---- 피그마 템플릿 모드: [사진(맨 아래)] → [템플릿(투명 영역으로 사진 노출)] → [텍스트 오버레이] ---- */
+  if (d.tpl){
+    const has = s => (s||'').trim();
+    const tc = textColorOv || t.text;
+    const tc2 = textColorOv || bodyGray;
+    const mv = `transform:translateY(${adjY}px);`;
+    const photoLayer = d.img ? `<div class="photodrag" data-idx="${idx}" style="position:absolute;inset:0;${photoCSS(d)}"></div>` : '';
+    const tplLayer = `<div style="position:absolute;inset:0;background-image:url('${d.tpl}');background-size:1080px 1350px;background-repeat:no-repeat;pointer-events:none"></div>`;
+    let overlay = '';
+    if (slide.type==='cover'){
+      overlay = `<div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;pointer-events:none;${mv}">
+        ${has(d.title)?`<div style="font-size:${S(94)}px;font-weight:900;line-height:1.2;letter-spacing:-0.03em;color:${tc};word-break:keep-all">${fmt(d.title)}</div>`:''}
+        ${has(d.subtitle)?`<div style="margin-top:30px;font-size:${S(34)}px;font-weight:500;color:${tc2}">${esc(d.subtitle)}</div>`:''}
+      </div>`;
+    } else if (slide.type==='photo'){
+      overlay = `<div style="position:absolute;left:${M}px;right:${M}px;${d.img?'top:884px':'top:220px;bottom:220px;display:flex;flex-direction:column;justify-content:center'};pointer-events:none;${mv}">
+        ${has(d.title)?`<div style="font-size:${S(52)}px;font-weight:800;color:${tc};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.title)}</div>`:''}
+        ${has(d.desc)?`<div style="margin-top:28px;font-size:${S(34)}px;font-weight:400;line-height:1.6;color:${tc2};word-break:keep-all">${nl2br(d.desc)}</div>`:''}
+      </div>`;
+    } else if (slide.type==='text'){
+      overlay = `<div style="position:absolute;left:${M}px;right:${M}px;top:220px;bottom:220px;display:flex;flex-direction:column;justify-content:center;pointer-events:none;${mv}">
+        ${has(d.title)?`<div style="font-size:${S(62)}px;font-weight:800;line-height:1.3;color:${tc};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.title)}</div>`:''}
+        ${has(d.body)?`<div style="margin-top:32px;font-size:${S(36)}px;font-weight:400;line-height:1.65;color:${tc2};word-break:keep-all">${nl2br(d.body)}</div>`:''}
+      </div>`;
+    } else {
+      overlay = `<div style="position:absolute;left:${M}px;right:${M}px;top:320px;pointer-events:none;${mv}">
+        ${has(d.summary)?`<div style="font-size:${S(56)}px;font-weight:800;line-height:1.42;color:${tc};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.summary)}</div>`:''}
+        ${has(d.cta)?`<div style="margin-top:60px;display:inline-block;background:${t.primary};color:#FFFFFF;font-size:${S(31)}px;font-weight:700;border-radius:60px;padding:24px 46px">${esc(d.cta)}</div>`:''}
+        ${has(d.disclaimer)?`<div style="margin-top:80px;font-size:${S(24)}px;line-height:1.55;color:${textColorOv||'#6B7684'};word-break:keep-all">${esc(d.disclaimer)}</div>`:''}
+      </div>`;
+    }
+    return `<div class="canvas" style="background:${t.bg}">${photoLayer}${tplLayer}${overlay}</div>`;
+  }
+
+  /* ---- 표지 ---- */
+  if (slide.type==='cover'){
+    const hasImg = !!d.img;
+    if (hasImg){
+      return `<div class="canvas" style="background:#16243C">
+        <div class="photodrag" data-idx="${idx}" style="position:absolute;inset:0;${photoCSS(d)}"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,36,60,.28) 0%,rgba(22,36,60,.84) 82%);pointer-events:none"></div>
+        ${topBar(true)}
+        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;pointer-events:none">
+          <div><span style="display:inline-block;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.6);color:#fff;font-size:26px;font-weight:700;border-radius:40px;padding:12px 28px">${esc(t.badge)}</span></div>
+          <div style="margin-top:44px;font-size:${S(94)}px;font-weight:900;line-height:1.2;letter-spacing:-0.03em;color:#fff;word-break:keep-all">${fmt(d.title)}${redDot(16)}</div>
+          <div style="margin-top:30px;font-size:34px;font-weight:500;color:rgba(255,255,255,.86);letter-spacing:-0.01em">${esc(d.subtitle)}</div>
+        </div>
+        ${bottomBar(true)}
+      </div>`;
+    }
+    if (sty!=='clean'){
+      return `<div class="canvas" style="background:${t.bg}">
+        ${hairlines}
+        ${topBar(false)}
+        ${styleCoverDeco(t)}
+        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;z-index:2">
+          <div><span style="display:inline-block;font-size:26px;font-weight:700;padding:14px 30px;${styleBadgeCss(t)}">${esc(t.badge)}</span></div>
+          <div style="margin-top:48px;font-size:${S(96)}px;font-weight:900;line-height:1.24;letter-spacing:-0.03em;color:${t.text};word-break:keep-all;${styleTitleCss(t)}">${fmt(d.title)}${redDot(18)}</div>
+          <div style="margin-top:34px;font-size:34px;font-weight:500;color:${t.sub};letter-spacing:-0.01em">${esc(d.subtitle)}</div>
+        </div>
+        ${bottomBar(t.dark)}
+      </div>`;
+    }
+    if (isMag){
+      return `<div class="canvas" style="background:${t.bg}">
+        ${hairlines}
+        ${topBar(false)}
+        <div style="position:absolute;left:${M}px;right:${M}px;top:225px;bottom:225px;background:#FFFFFF;border-radius:32px;box-shadow:${shadow};overflow:hidden">
+          ${(d.ghost||'').trim()? `<div style="position:absolute;right:-50px;bottom:-90px;font-size:600px;font-weight:900;line-height:1;color:#EAF1F8;letter-spacing:-.05em">${esc(d.ghost)}</div>`:''}
+          <div style="position:absolute;left:72px;right:72px;top:96px;bottom:96px">
+            <div><span style="display:inline-block;background:#16243C;color:#fff;font-size:26px;font-weight:700;border-radius:40px;padding:14px 30px">${esc(t.badge)}</span></div>
+            <div style="margin-top:64px;font-size:${S(94)}px;font-weight:900;line-height:1.22;letter-spacing:-0.035em;color:#111111;word-break:keep-all">${fmt(d.title)}${redDot(18)}</div>
+            <div style="margin-top:44px;width:56px;height:5px;background:${t.primary}"></div>
+            <div style="margin-top:34px;font-size:34px;font-weight:500;color:#555555;letter-spacing:-0.01em">${esc(d.subtitle)}</div>
+          </div>
+        </div>
+        ${bottomBar(false)}
+      </div>`;
+    }
+    if (t.preset==='navy'){
+      return `<div class="canvas" style="background:#16243C">
+        <div style="position:absolute;inset:0;background:linear-gradient(160deg,#16243C 0%,#243B60 100%)"></div>
+        <div style="position:absolute;right:-160px;top:-160px;width:520px;height:520px;border-radius:50%;border:2px solid #33517D;opacity:.5"></div>
+        <div style="position:absolute;right:-60px;top:-60px;width:520px;height:520px;border-radius:50%;border:2px solid #33517D;opacity:.3"></div>
+        ${topBar(false)}
+        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px">
+          <div><span style="display:inline-block;background:rgba(82,120,174,.25);border:1.5px solid #5278AE;color:#fff;font-size:26px;font-weight:700;border-radius:40px;padding:12px 28px">${esc(t.badge)}</span></div>
+          <div style="margin-top:44px;font-size:${S(94)}px;font-weight:900;line-height:1.2;letter-spacing:-0.03em;color:#fff;word-break:keep-all">${fmtHL(d.title,'#8AA6CC')}${redDot(16)}</div>
+          <div style="margin-top:30px;font-size:34px;font-weight:500;color:#8AA6CC;letter-spacing:-0.01em">${esc(d.subtitle)}</div>
+        </div>
+        ${bottomBar(false)}
+      </div>`;
+    }
+    // 에디토리얼
+    return `<div class="canvas" style="background:${t.bg}">
+      <div style="position:absolute;left:0;bottom:0;width:100%;height:14px;background:${t.primary}"></div>
+      ${topBar(false)}
+      <div style="position:absolute;left:${M}px;top:300px;width:150px;height:6px;background:${t.primary}"></div>
+      <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px">
+        <div><span style="display:inline-block;border:2px solid ${t.primary};color:${t.primary};font-size:26px;font-weight:700;border-radius:40px;padding:12px 28px">${esc(t.badge)}</span></div>
+        <div style="margin-top:44px;font-size:${S(94)}px;font-weight:900;line-height:1.22;letter-spacing:-0.035em;color:${t.text};word-break:keep-all">${fmt(d.title)}${redDot(16)}</div>
+        <div style="margin-top:30px;font-size:34px;font-weight:500;color:${t.sub};letter-spacing:-0.01em">${esc(d.subtitle)}</div>
+      </div>
+      ${bottomBar(false)}
+    </div>`;
+  }
+
+  /* ---- 사진+설명 (사진이 없으면 설명 전용 레이아웃으로 자동 전환) ---- */
+  if (slide.type==='photo'){
+    const num = String(state.slides.slice(0,idx).filter(s=>s.type==='photo').length+1).padStart(2,'0');
+    if (!d.img){
+      return `<div class="canvas" style="background:${t.bg}">
+        ${t.preset==='navy'? `<div style="position:absolute;inset:0;background:linear-gradient(160deg,#16243C 0%,#243B60 100%)"></div>`:''}
+        ${hairlines}
+        ${topBar(false)}
+        ${ghost(num, 170, 380)}
+        <div style="position:absolute;left:${M}px;right:${M}px;top:220px;bottom:220px;display:flex;flex-direction:column;justify-content:center;z-index:1">
+          ${!isMag? `<div style="font-size:60px;font-weight:900;color:${t.primary};letter-spacing:-0.02em;margin-bottom:28px">${num}</div>`:''}
+          <div style="font-size:${S(62)}px;font-weight:800;line-height:1.28;color:${t.text};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.title)}${redDot(14)}</div>
+          <div style="margin-top:34px;width:56px;height:5px;background:${t.primary}"></div>
+          <div style="margin-top:36px;font-size:36px;font-weight:400;line-height:1.65;color:${bodyGray};letter-spacing:-0.01em;word-break:keep-all">${nl2br(d.desc)}</div>
+        </div>
+        ${bottomBar(false)}
+      </div>`;
+    }
+    return `<div class="canvas" style="background:${t.bg}">
+      ${t.preset==='navy'? `<div style="position:absolute;inset:0;background:linear-gradient(160deg,#16243C 0%,#243B60 100%)"></div>`:''}
+      ${hairlines}
+      ${topBar(false)}
+      ${(()=>{ const pf = stylePhotoFrame(t);
+        if (!pf) return `<div style="position:absolute;left:${M}px;right:${M}px;top:190px;height:630px;border-radius:${radius}px;overflow:hidden;box-shadow:${shadow};${cardEdge}z-index:1">
+          <div class="photodrag" data-idx="${idx}" style="position:absolute;inset:0;${photoCSS(d)}"></div></div>`;
+        return `<div style="position:absolute;left:${M}px;right:${M}px;top:190px;height:630px;${pf.css}z-index:1">
+          ${pf.chrome||''}
+          <div style="position:absolute;${pf.inner};overflow:hidden">
+            <div class="photodrag" data-idx="${idx}" style="position:absolute;inset:0;${photoCSS(d)}"></div>
+          </div>
+          ${pf.extra||''}
+        </div>`; })()}
+      ${ghost(num, 810, 330)}
+      <div style="position:absolute;left:${M}px;right:${M}px;top:884px;z-index:1">
+        <div style="display:flex;align-items:baseline;gap:20px">
+          ${!isMag? `<div style="font-size:50px;font-weight:900;color:${t.primary};letter-spacing:-0.02em">${num}</div>`:''}
+          <div style="font-size:${S(52)}px;font-weight:800;color:${t.text};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.title)}${redDot(13)}</div>
+        </div>
+        <div style="margin-top:26px;width:56px;height:5px;background:${t.primary}"></div>
+        <div style="margin-top:28px;font-size:34px;font-weight:400;line-height:1.6;color:${bodyGray};letter-spacing:-0.01em;word-break:keep-all">${nl2br(d.desc)}</div>
+      </div>
+      ${bottomBar(false)}
+    </div>`;
+  }
+
+  /* ---- 텍스트 카드 (라벨·포인트 목록은 비우면 자동 숨김 → 설명 전용 페이지) ---- */
+  if (slide.type==='text'){
+    const bullets = (d.bullets||'').split('\n').filter(x=>x.trim());
+    const items = bullets.length ? `<div style="margin-top:40px">` + bullets.map((b,bi)=>`
+      <div style="display:flex;align-items:center;gap:26px;border-radius:18px;padding:32px 38px;margin-top:18px;${cardCss || `background:${cardBg};box-shadow:${shadow};${cardEdge}`}">
+        <div style="font-size:40px;font-weight:900;color:${isMag?'#B7CBE3':(sty==='retro'?'#1D2B66':t.primary)};letter-spacing:-0.02em;flex:none">${String(bi+1).padStart(2,'0')}</div>
+        <div style="font-size:34px;font-weight:600;color:${cardCss?cardText:t.text};letter-spacing:-0.02em;word-break:keep-all">${esc(b)}</div>
+      </div>`).join('') + `</div>` : '';
+    const bodySize = bullets.length ? 34 : 38;
+    const bodyLH = bullets.length ? 1.6 : 1.7;
+    return `<div class="canvas" style="background:${t.bg}">
+      ${t.preset==='navy'? `<div style="position:absolute;inset:0;background:linear-gradient(160deg,#16243C 0%,#243B60 100%)"></div>`:''}
+      ${hairlines}
+      ${topBar(false)}
+      <div style="position:absolute;left:${M}px;right:${M}px;top:200px;bottom:200px;display:flex;flex-direction:column;justify-content:center;z-index:1">
+        ${kicker(d.label)}
+        <div style="margin-top:${(d.label||'').trim()?'30':'0'}px;font-size:${S(64)}px;font-weight:800;line-height:1.28;color:${t.text};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.title)}${redDot(14)}</div>
+        <div style="margin-top:32px;font-size:${bodySize}px;font-weight:400;line-height:${bodyLH};color:${bodyGray};letter-spacing:-0.01em;word-break:keep-all">${nl2br(d.body)}</div>
+        ${items}
+      </div>
+      ${bottomBar(false)}
+    </div>`;
+  }
+
+  /* ---- 마무리 (유의문구가 길면 — 광고성 필수 기재 문구 — 레이아웃 자동 조정) ---- */
+  const longDisc = (d.disclaimer||'').length > 250;
+  return `<div class="canvas" style="background:${t.bg}">
+    ${t.preset==='navy' ? `<div style="position:absolute;inset:0;background:linear-gradient(200deg,#16243C 0%,#243B60 100%)"></div>`:''}
+    ${hairlines}
+    ${topBar(false)}
+    <div style="position:absolute;left:${M}px;right:${M}px;top:${longDisc?196:212}px;z-index:1">${kicker(d.title)}</div>
+    <div style="position:absolute;left:${M}px;right:${M}px;top:${longDisc?256:290}px;height:${longDisc?330:500}px;border-radius:32px;overflow:hidden;z-index:1;${cardCss || `background:${cardBg};box-shadow:${shadow};${cardEdge}`}">
+      <div style="position:absolute;left:44px;top:-48px;font-size:${longDisc?200:280}px;font-weight:900;line-height:1;color:${cardCss?'#ECEFF4':(t.dark?'rgba(138,166,204,.16)':'#E3ECF5')}">&ldquo;</div>
+      <div style="position:absolute;left:80px;right:80px;top:50%;transform:translateY(-46%);font-size:${S(longDisc?44:56)}px;font-weight:800;line-height:1.42;color:${cardCss?cardText:t.text};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.summary)}${redDot(14)}</div>
+    </div>
+    <div style="position:absolute;left:${M}px;right:${M}px;top:${longDisc?626:856}px;z-index:1">
+      <div style="display:inline-flex;align-items:center;gap:20px;background:${t.primary};color:${sty==='window'?'#FFFFFF':(t.dark?'#16243C':'#FFFFFF')};font-size:${longDisc?28:31}px;font-weight:700;border-radius:60px;padding:${longDisc?'20px 40px':'24px 46px'}">${esc(d.cta)}
+        <svg width="52" height="16" viewBox="0 0 52 16"><path d="M0 8h46M39 2l7 6-7 6" fill="none" stroke="${sty==='window'?'#FFFFFF':(t.dark?'#16243C':'#FFFFFF')}" stroke-width="2.5"/></svg></div>
+      <div style="margin-top:${longDisc?16:26}px;font-size:${longDisc?27:30}px;font-weight:700;color:${t.dark&&sty!=='clean'?'#FFFFFF':t.primary}">${esc(t.handle)}</div>
+    </div>
+    <div style="position:absolute;left:${M}px;right:${M}px;bottom:${longDisc?140:170}px;border-top:1px solid ${t.dark?'rgba(255,255,255,.3)':'#D5DEE8'};padding-top:${longDisc?20:26}px;z-index:1">
+      <div style="font-size:${longDisc?17:24}px;font-weight:400;line-height:1.5;color:${t.dark?(sty!=='clean'?t.sub:'#8AA6CC'):'#6B7684'};word-break:keep-all">${esc(d.disclaimer)}</div>
+    </div>
+    ${bottomBar(false)}
+  </div>`;
+}
+
+/* ============================================================
+   미리보기 / 썸네일 갱신
+   ============================================================ */
+function fitPreview(){
+  const stage = document.getElementById('stage');
+  const availH = stage.clientHeight - 90, availW = stage.clientWidth - 80;
+  const sc = Math.min(availH/1350, availW/1080);
+  const pv = document.getElementById('preview');
+  pv.style.transform = `scale(${sc})`;
+  const wrap = document.getElementById('previewWrap');
+  wrap.style.width = (1080*sc)+'px'; wrap.style.height = (1350*sc)+'px';
+}
+window.addEventListener('resize', ()=>{fitPreview();});
+
+function render(){
+  const total = state.slides.length;
+  if (state.sel >= total) state.sel = total-1;
+  if (state.sel < 0) state.sel = 0;
+  // 미리보기
+  const pv = document.getElementById('preview');
+  pv.innerHTML = total ? slideHTML(state.slides[state.sel], state.sel, total) : '';
+  bindPhotoDrag(pv);
+  // 썸네일
+  const tb = document.getElementById('thumbs');
+  tb.innerHTML = '';
+  const TYPE_LABEL = {cover:'표지', photo:'사진', text:'텍스트', ending:'마무리'};
+  state.slides.forEach((s,i)=>{
+    const div = document.createElement('div');
+    div.className = 'thumb'+(i===state.sel?' sel':'');
+    div.innerHTML = `<div class="tlabel">${i+1} · ${TYPE_LABEL[s.type]}</div>
+      <div class="tools">
+        <button title="위로" onclick="event.stopPropagation();moveSlide(${i},-1)">&#8593;</button>
+        <button title="아래로" onclick="event.stopPropagation();moveSlide(${i},1)">&#8595;</button>
+        <button title="삭제" onclick="event.stopPropagation();delSlide(${i})">&#10005;</button>
+      </div>
+      <div class="twrap"><div class="tframe">${slideHTML(s,i,state.slides.length)}</div></div>`;
+    div.onclick = ()=>{state.sel=i; render(); renderPanel();};
+    tb.appendChild(div);
+    const wrap = div.querySelector('.twrap'), frame = div.querySelector('.tframe');
+    frame.style.transform = `scale(${(wrap.clientWidth||180)/1080})`;
+  });
+  fitPreview();
+  autosave();
+}
+
+/* ---- 사진 드래그로 위치 조정 ---- */
+function bindPhotoDrag(root){
+  root.querySelectorAll('.photodrag').forEach(el=>{
+    el.style.cursor='grab';
+    el.addEventListener('mousedown', e=>{
+      e.preventDefault();
+      const idx = +el.dataset.idx;
+      const d = state.slides[idx].data;
+      const startX=e.clientX, startY=e.clientY, p0={...d.pan};
+      const sc = document.getElementById('preview').getBoundingClientRect().width/1080;
+      function mv(ev){
+        d.pan.x = Math.max(0,Math.min(100, p0.x - (ev.clientX-startX)/(3*sc)));
+        d.pan.y = Math.max(0,Math.min(100, p0.y - (ev.clientY-startY)/(3*sc)));
+        el.style.backgroundPosition = `${d.pan.x}% ${d.pan.y}%`;
+      }
+      function up(){ document.removeEventListener('mousemove',mv); document.removeEventListener('mouseup',up); render(); renderPanel(); }
+      document.addEventListener('mousemove',mv); document.addEventListener('mouseup',up);
+    });
+  });
+}
+
+/* ============================================================
+   편집 패널
+   ============================================================ */
+function field(label, id, val, kind, extra){
+  if (kind==='textarea') return `<div class="field"><label>${label}</label><textarea id="${id}" rows="${extra||3}">${esc(val)}</textarea></div>`;
+  return `<div class="field"><label>${label}</label><input type="text" id="${id}" value="${esc(val)}"></div>`;
+}
+function renderPanel(){
+  const p = document.getElementById('slidePanel');
+  const s = state.slides[state.sel];
+  if (!s){ p.innerHTML = '<h3>슬라이드</h3><p class="hint">좌측 하단 버튼으로 슬라이드를 추가하세요.</p>'; return; }
+  const d = s.data;
+  const TYPE_LABEL = {cover:'표지', photo:'사진 + 설명', text:'텍스트 카드', ending:'마무리'};
+  let html = `<h3>슬라이드 ${state.sel+1} — ${TYPE_LABEL[s.type]}</h3>`;
+
+  if (s.type==='cover'){
+    html += photoBox(d, '표지 배경 사진 (선택)');
+    html += field('메인 타이틀 (줄바꿈 가능 · **단어**는 파란 강조)','f_title',d.title,'textarea',2);
+    html += field('서브 카피','f_subtitle',d.subtitle);
+    html += field('고스트 문자 (선택 — 카드 뒤 대형 워터마크, 예: 3, ETF)','f_ghost',d.ghost||'');
+  } else if (s.type==='photo'){
+    html += photoBox(d, '사진 업로드 (선택 — 없으면 설명 전용 레이아웃)');
+    html += field('제목 (**단어**는 파란 강조)','f_title',d.title,'textarea',2);
+    html += field('설명','f_desc',d.desc,'textarea',5);
+    html += `<p class="hint">사진을 올리지 않으면 이 슬라이드는 자동으로 설명 전용 디자인으로 바뀝니다. 번호(01, 02…)는 사진·설명 슬라이드 순서에 따라 자동으로 매겨집니다.</p>`;
+  } else if (s.type==='text'){
+    html += field('섹션 라벨 (비우면 숨김)','f_label',d.label);
+    html += field('타이틀','f_title',d.title,'textarea',2);
+    html += field('본문','f_body',d.body,'textarea',4);
+    html += field('포인트 목록 (줄마다 1개 · 비우면 숨김)','f_bullets',d.bullets,'textarea',3);
+  } else {
+    html += field('타이틀','f_title',d.title,'textarea',2);
+    html += field('요약 카피','f_summary',d.summary,'textarea',2);
+    html += field('CTA 버튼 문구','f_cta',d.cta);
+    html += field('유의문구 (하단 소형)','f_disclaimer',d.disclaimer,'textarea',3);
+  }
+  html += tplBox(d);
+  d.adj = d.adj || {y:0, scale:100, color:''};
+  html += `<div class="field"><label>텍스트 크기 <span id="f_adjSv">${d.adj.scale}%</span></label><input type="range" id="f_adjS" min="70" max="140" value="${d.adj.scale}"></div>`;
+  if (d.tpl){
+    html += `<div class="field"><label>텍스트 세로 위치 <span id="f_adjYv">${d.adj.y}px</span></label><input type="range" id="f_adjY" min="-320" max="320" value="${d.adj.y}"></div>
+    <div class="row">
+      <div class="field"><label>오버레이 텍스트 컬러</label><input type="color" id="f_adjC" value="${d.adj.color||'#111111'}"></div>
+      <button class="btn sub" id="f_adjCauto" style="flex:none">자동</button>
+    </div>
+    <p class="hint">템플릿 배경이 어두우면 텍스트 컬러를 밝게 바꾸세요. "자동"은 테마 기본색으로 되돌립니다.</p>`;
+  }
+  p.innerHTML = html;
+
+  // 업로드 바인딩 (사진 + 피그마 템플릿)
+  p.querySelectorAll('.drop').forEach(drop=>{
+    const isTpl = drop.dataset.target==='tpl';
+    const handle = f => isTpl ? readTemplate(f, d) : readImage(f, d);
+    drop.onclick = ()=>{
+      const fp = document.getElementById('filePick');
+      fp.onchange = ()=>{ if (fp.files[0]) handle(fp.files[0]); fp.value=''; };
+      fp.click();
+    };
+    drop.ondragover = e=>{e.preventDefault(); drop.classList.add('over');};
+    drop.ondragleave = ()=>drop.classList.remove('over');
+    drop.ondrop = e=>{e.preventDefault(); drop.classList.remove('over');
+      const f = e.dataTransfer.files[0]; if (f) handle(f);};
+  });
+  const zoom = p.querySelector('#f_zoom');
+  if (zoom) zoom.oninput = ()=>{ d.pan.zoom = +zoom.value; render(); };
+  const rm = p.querySelector('#f_rmimg');
+  if (rm) rm.onclick = ()=>{ d.img=null; render(); renderPanel(); };
+  const rmt = p.querySelector('#f_rmtpl');
+  if (rmt) rmt.onclick = ()=>{ d.tpl=null; render(); renderPanel(); };
+  const aS = p.querySelector('#f_adjS');
+  if (aS) aS.oninput = ()=>{ d.adj.scale=+aS.value; p.querySelector('#f_adjSv').textContent=aS.value+'%'; render(); };
+  const aY = p.querySelector('#f_adjY');
+  if (aY) aY.oninput = ()=>{ d.adj.y=+aY.value; p.querySelector('#f_adjYv').textContent=aY.value+'px'; render(); };
+  const aC = p.querySelector('#f_adjC');
+  if (aC) aC.oninput = ()=>{ d.adj.color=aC.value; render(); };
+  const aCa = p.querySelector('#f_adjCauto');
+  if (aCa) aCa.onclick = ()=>{ d.adj.color=''; render(); renderPanel(); };
+  // 텍스트 바인딩
+  [['f_title','title'],['f_subtitle','subtitle'],['f_ghost','ghost'],['f_desc','desc'],['f_label','label'],
+   ['f_body','body'],['f_bullets','bullets'],['f_summary','summary'],['f_cta','cta'],['f_disclaimer','disclaimer']]
+  .forEach(([id,key])=>{
+    const el = p.querySelector('#'+id);
+    if (el) el.oninput = ()=>{ d[key]=el.value; render(); };
+  });
+}
+function photoBox(d, label){
+  if (d.img) return `<div class="field"><label>${label}</label>
+    <div class="drop" data-target="img" style="padding:8px"><img src="${d.img}" style="max-width:100%;max-height:110px;border-radius:6px"></div>
+    <div class="row" style="margin-top:8px">
+      <div class="field" style="margin:0"><label>확대 (드래그로 위치 조정)</label><input type="range" id="f_zoom" min="100" max="250" value="${d.pan.zoom}"></div>
+      <button class="btn sub" id="f_rmimg" style="flex:none">사진 제거</button>
+    </div></div>`;
+  return `<div class="field"><label>${label}</label>
+    <div class="drop" data-target="img">클릭하거나 사진을 끌어다 놓으세요<br><span style="font-size:11px">JPG·PNG · 권장 1080px 이상</span></div></div>`;
+}
+function tplBox(d){
+  if (d.tpl) return `<div class="field"><label>피그마 템플릿 배경</label>
+    <div class="drop" data-target="tpl" style="padding:8px"><img src="${d.tpl}" style="max-width:100%;max-height:90px;border-radius:6px;background:#fff"></div>
+    <button class="btn sub" id="f_rmtpl" style="margin-top:8px">템플릿 제거</button>
+    <p class="hint">템플릿이 배경으로 깔리고 테마 장식은 꺼집니다. 입력칸을 비우면 해당 텍스트는 표시되지 않습니다. 사진 영역을 투명하게 뚫은 SVG/PNG를 올리면 업로드한 사진이 그 자리에 비칩니다.</p></div>`;
+  return `<div class="field"><label>피그마 템플릿 배경 (선택)</label>
+    <div class="drop" data-target="tpl">피그마에서 1080×1350 프레임을 SVG/PNG로 내보내<br>여기에 끌어다 놓으세요</div></div>`;
+}
+function readTemplate(file, d){
+  const r = new FileReader();
+  r.onload = ()=>{ d.tpl = r.result; render(); renderPanel(); };
+  r.readAsDataURL(file);
+}
+function pickImage(d){
+  const fp = document.getElementById('filePick');
+  fp.onchange = ()=>{ if (fp.files[0]) readImage(fp.files[0], d); fp.value=''; };
+  fp.click();
+}
+function readImage(file, d){
+  const r = new FileReader();
+  r.onload = ()=>{
+    // 긴 변 2000px로 리사이즈해 저장 (품질 유지 + 용량 관리)
+    const img = new Image();
+    img.onload = ()=>{
+      const maxSide = 2000;
+      const sc = Math.min(1, maxSide/Math.max(img.width,img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width*sc); c.height = Math.round(img.height*sc);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      d.img = c.toDataURL('image/jpeg', 0.92);
+      d.pan = {x:50,y:50,zoom:100};
+      render(); renderPanel();
+    };
+    img.src = r.result;
+  };
+  r.readAsDataURL(file);
+}
+
+/* ============================================================
+   테마 패널
+   ============================================================ */
+function renderThemePanel(){
+  const t = state.theme;
+  const box = document.getElementById('presetBox');
+  box.innerHTML = '';
+  Object.entries(PRESETS).forEach(([key,ps])=>{
+    const b = document.createElement('button');
+    b.className = key===t.preset?'sel':'';
+    b.style.background = `linear-gradient(160deg,${ps.bg} 55%,${ps.primary} 160%)`;
+    b.innerHTML = `<span>${ps.name}</span>`;
+    b.onclick = ()=>{ applyPreset(key); };
+    box.appendChild(b);
+  });
+  document.getElementById('thPrimary').value = t.primary;
+  document.getElementById('thBg').value = t.bg;
+  document.getElementById('thText').value = t.text;
+  document.getElementById('thBadge').value = t.badge;
+  document.getElementById('thHandle').value = t.handle;
+  document.getElementById('thFooterLabel').value = t.footerLabel||'';
+  document.getElementById('thLogo').value = t.logo;
+  document.getElementById('thPager').value = t.pager;
+  document.getElementById('thRedDot').value = t.redDot||'on';
+  document.getElementById('thScale').value = t.scale;
+  document.getElementById('thScaleV').textContent = t.scale+'%';
+}
+function applyPreset(key){
+  const keep = { badge:state.theme.badge, handle:state.theme.handle, footerLabel:state.theme.footerLabel,
+    redDot:state.theme.redDot, pager:state.theme.pager, scale:state.theme.scale };
+  state.theme = { preset:key, ...JSON.parse(JSON.stringify(PRESETS[key])), ...keep };
+  renderThemePanel(); render();
+}
+[['thPrimary','primary'],['thBg','bg'],['thText','text'],['thBadge','badge'],
+ ['thHandle','handle'],['thFooterLabel','footerLabel'],['thLogo','logo'],['thPager','pager'],['thRedDot','redDot']]
+.forEach(([id,key])=>{
+  document.addEventListener('input', e=>{
+    if (e.target.id===id){ state.theme[key]=e.target.value; render(); }
+  });
+});
+document.addEventListener('input', e=>{
+  if (e.target.id==='thScale'){ state.theme.scale=+e.target.value;
+    document.getElementById('thScaleV').textContent = e.target.value+'%'; render(); }
+});
+
+function exportTheme(){
+  download('theme-'+state.theme.preset+'.json',
+    new Blob([JSON.stringify(state.theme,null,2)],{type:'application/json'}));
+  toast('테마 JSON을 저장했습니다');
+}
+function importTheme(){
+  const fp = document.getElementById('jsonPick');
+  fp.onchange = ()=>{
+    const f = fp.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ()=>{ try{
+      const th = JSON.parse(r.result);
+      if (th.slides) { toast('프로젝트 파일입니다 — [프로젝트 열기]를 사용하세요'); return; }
+      state.theme = {...state.theme, ...th};
+      renderThemePanel(); render(); toast('테마를 적용했습니다');
+    }catch(e){ toast('테마 파일을 읽을 수 없습니다'); } };
+    r.readAsText(f); fp.value='';
+  };
+  fp.click();
+}
+
+/* ============================================================
+   콘텐츠 유형 · 준수사항
+   ============================================================ */
+function renderTypePanel(){
+  const sel = document.getElementById('ctType');
+  sel.innerHTML = Object.entries(CONTENT_TYPES).map(([k,v])=>`<option value="${k}"${k===state.contentType?' selected':''}>${v.name}</option>`).join('');
+  document.getElementById('ctNote').textContent = CONTENT_TYPES[state.contentType].note;
+}
+document.addEventListener('change', e=>{
+  if (e.target.id!=='ctType') return;
+  state.contentType = e.target.value;
+  const ct = CONTENT_TYPES[state.contentType];
+  document.getElementById('ctNote').textContent = ct.note;
+  if (ct.disc){
+    state.slides.forEach(s=>{ if (s.type==='ending') s.data.disclaimer = ct.disc; });
+    toast('마무리 슬라이드에 이 유형의 필수 문구를 적용했습니다');
+  }
+  render(); renderPanel();
+});
+function openGuide(){ document.getElementById('guideModal').style.display='flex'; }
+function closeGuide(){ document.getElementById('guideModal').style.display='none'; }
+
+function complianceScan(){
+  const issues = [];
+  // 유의문구 필드는 검사 대상에서 제외 (필수 문구 자체에 %·상품 문구가 포함됨)
+  const allText = state.slides.map(s=>Object.entries(s.data)
+    .filter(([k,v])=>typeof v==='string' && k!=='disclaimer').map(([k,v])=>v).join('\n')).join('\n');
+  if (state.contentType!=='staff' && /ACE\s+(?!ETF\b|서포터즈)[가-힣A-Za-z0-9&+·]{2,}/.test(allText))
+    issues.push('상품명으로 보이는 표현(ACE ○○○)이 감지됐습니다. 임직원 미출연 콘텐츠는 구체적 상품명 언급이 불가합니다.');
+  if (/\(\d{6}\)|[0-9]{6}[A-Z]0/.test(allText))
+    issues.push('종목코드로 보이는 표기가 있습니다. 상품 특정에 해당할 수 있습니다.');
+  if (/[+-]?\d+(\.\d+)?\s*%|수익률/.test(allText))
+    issues.push('수익률·% 표기가 감지됐습니다. 수익률 표기 규정(BM 병기, 기간 요건)을 확인하세요.');
+  const ct = CONTENT_TYPES[state.contentType];
+  if (ct.disc && !state.slides.some(s=>s.type==='ending' && (s.data.disclaimer||'').includes(ct.disc.slice(0,20))))
+    issues.push('이 콘텐츠 유형의 필수 문구가 마무리 슬라이드에 없습니다. (유형을 다시 선택하면 자동 삽입)');
+  return issues;
+}
+function confirmCompliance(){
+  const issues = complianceScan();
+  if (!issues.length) return true;
+  return confirm('준수사항 확인이 필요합니다:\n\n· '+issues.join('\n· ')+'\n\n(모든 콘텐츠는 게재 전 운영국 심의 완료 회신이 필요합니다)\n\n그래도 내보낼까요?');
+}
+
+/* ============================================================
+   슬라이드 조작
+   ============================================================ */
+function addSlide(type){
+  state.slides.push(defaultSlide(type));
+  state.sel = state.slides.length-1;
+  render(); renderPanel();
+}
+function delSlide(i){
+  state.slides.splice(i,1);
+  render(); renderPanel();
+}
+function moveSlide(i,dir){
+  const j = i+dir;
+  if (j<0||j>=state.slides.length) return;
+  [state.slides[i],state.slides[j]]=[state.slides[j],state.slides[i]];
+  if (state.sel===i) state.sel=j; else if (state.sel===j) state.sel=i;
+  render(); renderPanel();
+}
+
+/* ============================================================
+   PNG 내보내기 — SVG foreignObject 방식 (1080×1350 원본 크기)
+   ============================================================ */
+async function slideToPNG(slide, idx, total){
+  const html = slideHTML(slide, idx, total)
+    .replace(/class="photodrag"/g,'')  // 인터랙션 클래스 제거
+    .replace(/data-idx="\d+"/g,'');
+  const holder = document.createElement('div');
+  holder.innerHTML = html;
+  // XHTML 직렬화
+  const node = holder.firstElementChild;
+  node.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
+  const ser = new XMLSerializer().serializeToString(node);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350">
+    <foreignObject width="1080" height="1350">
+      <style>.canvas{width:1080px;height:1350px;position:relative;overflow:hidden;font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;-webkit-font-smoothing:antialiased;margin:0}</style>
+      ${ser}
+    </foreignObject></svg>`;
+  const img = new Image();
+  const loaded = new Promise((res,rej)=>{img.onload=res; img.onerror=rej;});
+  img.src = 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  await loaded;
+  await new Promise(r=>setTimeout(r,60)); // 폰트/이미지 래스터 안정화
+  const c = document.createElement('canvas');
+  c.width=1080; c.height=1350;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img,0,0,1080,1350);
+  return new Promise(res=>c.toBlob(res,'image/png'));
+}
+async function exportOne(){
+  if (!state.slides.length) return;
+  if (!confirmCompliance()) return;
+  toast('내보내는 중…');
+  const blob = await slideToPNG(state.slides[state.sel], state.sel, state.slides.length);
+  download(`slide-${String(state.sel+1).padStart(2,'0')}.png`, blob);
+  toast('PNG 저장 완료');
+}
+async function exportAll(){
+  if (!state.slides.length) return;
+  if (!confirmCompliance()) return;
+  for (let i=0;i<state.slides.length;i++){
+    toast(`내보내는 중… ${i+1}/${state.slides.length}`);
+    const blob = await slideToPNG(state.slides[i], i, state.slides.length);
+    download(`slide-${String(i+1).padStart(2,'0')}.png`, blob);
+    await new Promise(r=>setTimeout(r,350));
+  }
+  toast('전체 PNG 저장 완료 — 다운로드 폴더 확인');
+}
+function download(name, blob){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+}
+
+/* ============================================================
+   피그마 편집용 SVG 내보내기 — 텍스트가 편집 가능한 레이어로 유지됨
+   (픽셀 정확본은 PNG 내보내기, SVG는 피그마 재편집용 드래프트)
+   ============================================================ */
+const _mctx = document.createElement('canvas').getContext('2d');
+function plainTxt(s){ return (s||'').replace(/\*\*(.+?)\*\*/g,'$1'); }
+function measureW(text, weight, size){
+  _mctx.font = `${weight} ${size}px Pretendard, "Apple SD Gothic Neo", sans-serif`;
+  return _mctx.measureText(text).width;
+}
+function wrapLines(text, weight, size, maxW){
+  const out = [];
+  for (const para of plainTxt(text).split('\n')){
+    let line = '';
+    for (const word of para.split(' ')){
+      const cand = line ? line+' '+word : word;
+      if (measureW(cand, weight, size) <= maxW){ line = cand; continue; }
+      if (line) out.push(line);
+      let w = '';
+      for (const ch of word){
+        if (measureW(w+ch, weight, size) <= maxW) w += ch;
+        else { out.push(w); w = ch; }
+      }
+      line = w;
+    }
+    out.push(line);
+  }
+  return out.filter(l=>l!==undefined);
+}
+function svgText(lines, x, firstBaseline, size, weight, fill, lh, anchor){
+  lh = lh||1.3;
+  const ls = (-0.02*size).toFixed(1);
+  return `<text x="${x}" y="${firstBaseline}" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" font-size="${size}" font-weight="${weight}" fill="${fill}" letter-spacing="${ls}"${anchor?` text-anchor="${anchor}"`:''}>`+
+    lines.map((l,i)=>`<tspan x="${x}" dy="${i? Math.round(size*lh) : 0}">${esc(l)}</tspan>`).join('')+`</text>`;
+}
+function svgSlide(slide, idx, total){
+  const t = state.theme, d = slide.data;
+  const adj = d.adj||{};
+  const S = v => Math.round(v * t.scale/100 * ((adj.scale||100)/100));
+  const W=1080, H=1350, M=84, CW=W-2*M;
+  const logoC = LOGO_COLORS[t.logo]||'#111111';
+  const bodyC = t.dark ? (styleOf(t)!=='clean'?'#FFFFFF':'#C6D2E2') : '#555555';
+  const isLast = idx===total-1;
+  const P = [];
+  // 배경
+  P.push(`<rect width="${W}" height="${H}" fill="${t.bg}"/>`);
+  const tplMode = !!d.tpl;
+  if (tplMode){
+    if (d.img) P.push(`<image href="${d.img}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="xMidYMid slice"/>`);
+    P.push(`<image href="${d.tpl}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none"/>`);
+  } else {
+    // 상단: 로고 + 페이지
+    P.push(`<g transform="translate(${M},80)" fill="${logoC}">${LOGO_PATHS}</g>`);
+    if (t.pager==='frac' && total>1)
+      P.push(svgText([`${String(idx+1).padStart(2,'0')} / ${String(total).padStart(2,'0')}`], W-M, 110, 30, 800, t.text, 1.2, 'end'));
+    // 하단: 시리즈 라벨 + 화살표/FIN
+    const lblC = t.dark ? 'rgba(255,255,255,.78)' : '#8AA6CC';
+    const arrC = t.dark ? '#FFFFFF' : t.primary;
+    P.push(`<text x="${M}" y="${H-74}" font-family="Pretendard, sans-serif" font-size="23" font-weight="700" letter-spacing="6.9" fill="${lblC}">${esc(t.footerLabel||'')}</text>`);
+    P.push(isLast
+      ? `<rect x="${W-M-104}" y="${H-92}" width="12" height="12" fill="${arrC}"/><text x="${W-M}" y="${H-80}" font-size="24" font-weight="700" letter-spacing="6.7" fill="${arrC}" text-anchor="end" font-family="Pretendard, sans-serif">FIN</text>`
+      : `<path d="M${W-M-66} ${H-88}h60m-7-6l7 6-7 6" fill="none" stroke="${arrC}" stroke-width="2.5"/>`);
+  }
+  const adjY = adj.y||0;
+  const tcT = tplMode ? ((adj.color||'').trim()||t.text) : t.text;
+  const tcB = tplMode ? ((adj.color||'').trim()||bodyC) : bodyC;
+
+  if (slide.type==='cover'){
+    const tSize = S(94), tLines = wrapLines(d.title, 900, tSize, CW);
+    const stack = 54+48 + tLines.length*Math.round(tSize*1.24) + (tplMode?0:44+5+34) + 30 + 44;
+    let y = H-250-stack + adjY;
+    if (!tplMode){
+      const bw = Math.round(measureW(t.badge, '700', 26))+60;
+      P.push(`<rect x="${M}" y="${y}" width="${bw}" height="54" rx="27" fill="${styleOf(t)!=='clean'||t.dark?t.primary:'#16243C'}"/>`);
+      P.push(svgText([t.badge], M+bw/2, y+36, 26, 700, '#FFFFFF', 1.2, 'middle'));
+    }
+    y += 54+48;
+    P.push(svgText(tLines, M, y+Math.round(tSize*0.82), tSize, 900, tcT, 1.24));
+    y += tLines.length*Math.round(tSize*1.24);
+    if (t.redDot!=='off'){
+      const lw = measureW(tLines[tLines.length-1]||'', '900', tSize);
+      P.push(`<circle cx="${M+lw+26}" cy="${y-Math.round(tSize*0.28)}" r="9" fill="#EE0000"/>`);
+    }
+    if (!tplMode){ y += 44; P.push(`<rect x="${M}" y="${y}" width="56" height="5" fill="${t.primary}"/>`); y += 5+30; }
+    else y += 26;
+    P.push(svgText(wrapLines(d.subtitle, 500, S(34), CW), M, y+30, S(34), 500, tcB, 1.4));
+  }
+  else if (slide.type==='photo'){
+    const num = String(state.slides.slice(0,idx).filter(s=>s.type==='photo').length+1).padStart(2,'0');
+    if (d.img && !tplMode){
+      P.push(`<clipPath id="pc${idx}"><rect x="${M}" y="190" width="${CW}" height="630" rx="28"/></clipPath>`);
+      P.push(`<image href="${d.img}" x="${M}" y="190" width="${CW}" height="630" preserveAspectRatio="xMidYMid slice" clip-path="url(#pc${idx})"/>`);
+    }
+    const hasImg = !!d.img;
+    const tSize = hasImg ? S(52) : S(62);
+    const tLines = wrapLines(d.title, 800, tSize, CW);
+    const dLines = wrapLines(d.desc, 400, S(34), CW);
+    let y;
+    if (hasImg || tplMode){ y = 884 + adjY; }
+    else {
+      const stack = 60+28 + tLines.length*Math.round(tSize*1.28) + 34+5+36 + dLines.length*Math.round(S(34)*1.6);
+      y = Math.max(220, (H-stack)/2) + adjY;
+      P.push(svgText([num], M, y+48, 60, 900, tplMode?tcT:t.primary, 1.2)); y += 60+28;
+    }
+    P.push(svgText(tLines, M, y+Math.round(tSize*0.82), tSize, 800, tcT, 1.28));
+    y += tLines.length*Math.round(tSize*1.28);
+    if (!tplMode){ y += 26; P.push(`<rect x="${M}" y="${y}" width="56" height="5" fill="${t.primary}"/>`); y += 5+28; }
+    else y += 24;
+    P.push(svgText(dLines, M, y+28, S(34), 400, tcB, 1.6));
+  }
+  else if (slide.type==='text'){
+    const tSize = S(62), bSize = S(36);
+    const tLines = wrapLines(d.title, 800, tSize, CW);
+    const bLines = wrapLines(d.body, 400, bSize, CW);
+    const bullets = (d.bullets||'').split('\n').filter(x=>x.trim());
+    const stack = tLines.length*Math.round(tSize*1.28) + 32 + bLines.length*Math.round(bSize*1.6) + (bullets.length? 40+bullets.length*118 : 0);
+    let y = Math.max(220, (H-stack)/2) + adjY;
+    if ((d.label||'').trim() && !tplMode){
+      P.push(`<rect x="${M}" y="${y}" width="40" height="3" fill="${t.primary}"/>`);
+      P.push(svgText([d.label], M+56, y+10, 27, 800, t.primary, 1.2));
+      y += 60;
+    }
+    P.push(svgText(tLines, M, y+Math.round(tSize*0.82), tSize, 800, tcT, 1.28));
+    y += tLines.length*Math.round(tSize*1.28) + 32;
+    P.push(svgText(bLines, M, y+Math.round(bSize*0.82), bSize, 400, tcB, 1.6));
+    y += bLines.length*Math.round(bSize*1.6) + 40;
+    if (!tplMode) bullets.forEach((b,bi)=>{
+      P.push(`<rect x="${M}" y="${y}" width="${CW}" height="100" rx="18" fill="${t.dark?'rgba(255,255,255,.12)':'#FFFFFF'}" ${t.dark?'':'stroke="#E2E8F0"'}/>`);
+      P.push(svgText([String(bi+1).padStart(2,'0')], M+38, y+64, 40, 900, t.primary, 1.2));
+      P.push(svgText([b], M+130, y+62, 34, 600, t.dark?'#FFFFFF':t.text, 1.2));
+      y += 118;
+    });
+  }
+  else {
+    const longDisc = (d.disclaimer||'').length > 250;
+    const cardY = longDisc?256:290, cardH = longDisc?330:500;
+    if (!tplMode){
+      if ((d.title||'').trim()){
+        P.push(`<rect x="${M}" y="${(longDisc?196:212)+10}" width="40" height="3" fill="${t.primary}"/>`);
+        P.push(svgText([d.title], M+56, (longDisc?196:212)+20, 27, 800, t.primary, 1.2));
+      }
+      P.push(`<rect x="${M}" y="${cardY}" width="${CW}" height="${cardH}" rx="32" fill="${t.dark?'rgba(255,255,255,.10)':'#FFFFFF'}"/>`);
+      const sSize = S(longDisc?44:56);
+      const sLines = wrapLines(d.summary, 800, sSize, CW-160);
+      const blockH = sLines.length*Math.round(sSize*1.42);
+      P.push(svgText(sLines, M+80, cardY+(cardH-blockH)/2+Math.round(sSize*0.82), sSize, 800, t.dark?'#FFFFFF':t.text, 1.42));
+      const ctaY = longDisc?626:856;
+      const cw = Math.round(measureW(d.cta, '700', longDisc?28:31))+160;
+      P.push(`<rect x="${M}" y="${ctaY}" width="${cw}" height="${longDisc?70:79}" rx="40" fill="${t.primary}"/>`);
+      P.push(svgText([d.cta], M+40, ctaY+(longDisc?45:50), longDisc?28:31, 700, t.dark?'#16243C':'#FFFFFF', 1.2));
+      P.push(svgText([t.handle], M, ctaY+(longDisc?70:79)+44, longDisc?27:30, 700, t.dark?'#FFFFFF':t.primary, 1.2));
+      const dcSize = longDisc?17:24;
+      const dcLines = wrapLines(d.disclaimer, 400, dcSize, CW);
+      const dcTop = H-(longDisc?140:170)-dcLines.length*Math.round(dcSize*1.5);
+      P.push(`<line x1="${M}" y1="${dcTop-20}" x2="${W-M}" y2="${dcTop-20}" stroke="${t.dark?'rgba(255,255,255,.3)':'#D5DEE8'}"/>`);
+      P.push(svgText(dcLines, M, dcTop+Math.round(dcSize*0.82), dcSize, 400, t.dark?'#8AA6CC':'#6B7684', 1.5));
+    } else {
+      let y = 320 + adjY;
+      const sSize = S(56), sLines = wrapLines(d.summary, 800, sSize, CW);
+      P.push(svgText(sLines, M, y+Math.round(sSize*0.82), sSize, 800, tcT, 1.42));
+      y += sLines.length*Math.round(sSize*1.42) + 60;
+      if ((d.cta||'').trim()){
+        const cw = Math.round(measureW(d.cta, '700', 31))+92;
+        P.push(`<rect x="${M}" y="${y}" width="${cw}" height="79" rx="40" fill="${t.primary}"/>`);
+        P.push(svgText([d.cta], M+46, y+50, 31, 700, '#FFFFFF', 1.2));
+        y += 79+80;
+      }
+      if ((d.disclaimer||'').trim()){
+        const dcLines = wrapLines(d.disclaimer, 400, 24, CW);
+        P.push(svgText(dcLines, M, y, 24, 400, (adj.color||'').trim()||'#6B7684', 1.55));
+      }
+    }
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${P.join('\n')}</svg>`;
+}
+function exportSVGOne(){
+  if (!state.slides.length) return;
+  const svg = svgSlide(state.slides[state.sel], state.sel, state.slides.length);
+  download(`slide-${String(state.sel+1).padStart(2,'0')}-figma.svg`, new Blob([svg],{type:'image/svg+xml'}));
+  toast('피그마 편집용 SVG 저장 — 피그마 캔버스에 끌어다 놓으세요');
+}
+async function exportSVGAll(){
+  if (!state.slides.length) return;
+  for (let i=0;i<state.slides.length;i++){
+    const svg = svgSlide(state.slides[i], i, state.slides.length);
+    download(`slide-${String(i+1).padStart(2,'0')}-figma.svg`, new Blob([svg],{type:'image/svg+xml'}));
+    await new Promise(r=>setTimeout(r,300));
+  }
+  toast('전체 SVG 저장 완료 — 피그마에 끌어다 놓으면 텍스트 편집 가능');
+}
+/* 피그마 템플릿 제작용 텍스트존 가이드 */
+function downloadGuide(){
+  const z = (x,y,w,h,label)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="rgba(82,120,174,.12)" stroke="#5278AE" stroke-dasharray="8 6"/><text x="${x+14}" y="${y+34}" font-size="24" font-weight="700" fill="#5278AE" font-family="Pretendard, sans-serif">${label}</text>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+    <rect width="1080" height="1350" fill="#FFFFFF"/>
+    ${z(84,72,912,60,'상단 앵커 존 — 로고·페이지 번호 (앱이 그림, 템플릿에선 비워두기 권장)')}
+    ${z(84,190,912,630,'사진 존 (사진 슬라이드) — 템플릿에서 이 영역을 투명하게 뚫으면 사진이 비칩니다')}
+    ${z(84,860,912,330,'텍스트 존 (사진 슬라이드) — 제목+설명이 여기 얹힘 (슬라이더로 상하 이동 가능)')}
+    ${z(84,760,912,340,'텍스트 존 (표지) — 타이틀+서브카피, 하단 기준')}
+    ${z(84,1216,912,70,'하단 앵커 존 — 시리즈 라벨·화살표')}
+    <text x="84" y="1330" font-size="20" fill="#767676" font-family="Pretendard, sans-serif">한국투자신탁운용 서포터즈 게시물 메이커 — 피그마 템플릿 가이드 (1080×1350, 좌우 마진 84px)</text>
+  </svg>`;
+  download('figma-template-guide.svg', new Blob([svg],{type:'image/svg+xml'}));
+  toast('가이드 SVG 저장 — 피그마에서 밑그림으로 깔고 템플릿을 디자인하세요');
+}
+/* 슬라이드 텍스트 일괄 복사 (피그마 재편집·인스타 캡션용) */
+function copyAllText(){
+  const TYPE_LABEL = {cover:'표지', photo:'사진', text:'텍스트', ending:'마무리'};
+  const out = state.slides.map((s,i)=>{
+    const d = s.data;
+    const fields = [d.title, d.subtitle, d.label, d.body, d.bullets, d.desc, d.summary, d.cta, d.disclaimer]
+      .filter(v=>(v||'').trim()).map(plainTxt);
+    return `[${i+1} ${TYPE_LABEL[s.type]}]\n`+fields.join('\n');
+  }).join('\n\n');
+  const ta = document.createElement('textarea');
+  ta.value = out; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('전체 텍스트를 클립보드에 복사했습니다'); }
+  catch(e){ toast('복사 실패 — 프로젝트 저장을 이용하세요'); }
+  ta.remove();
+}
+
+/* ============================================================
+   프로젝트 저장/불러오기 + 자동 저장
+   ============================================================ */
+function saveProject(){
+  download('게시물-프로젝트.json',
+    new Blob([JSON.stringify({theme:state.theme, slides:state.slides, contentType:state.contentType},null,1)],{type:'application/json'}));
+  toast('프로젝트를 저장했습니다 (사진 포함)');
+}
+function loadProject(){
+  const fp = document.getElementById('jsonPick');
+  fp.onchange = ()=>{
+    const f = fp.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ()=>{ try{
+      const pj = JSON.parse(r.result);
+      if (!pj.slides){ toast('프로젝트 파일이 아닙니다'); return; }
+      state.theme = pj.theme; state.slides = pj.slides; state.sel = 0;
+      if (pj.contentType && CONTENT_TYPES[pj.contentType]) state.contentType = pj.contentType;
+      renderTypePanel(); renderThemePanel(); render(); renderPanel(); toast('프로젝트를 불러왔습니다');
+    }catch(e){ toast('파일을 읽을 수 없습니다'); } };
+    r.readAsText(f); fp.value='';
+  };
+  fp.click();
+}
+function autosave(){
+  try{
+    const slim = { theme:state.theme,
+      slides:state.slides.map(s=>({type:s.type, data:{...s.data, img: s.data.img ? '(사진은 자동저장 제외)' : null, tpl: s.data.tpl ? '(템플릿은 자동저장 제외)' : null }})) };
+    localStorage.setItem('kimMakerAutosave', JSON.stringify(slim));
+  }catch(e){}
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove('on'), 2200);
+}
+
+/* ============================================================
+   초기화 — 기본 4장 구성
+   ============================================================ */
+state.slides = [defaultSlide('cover'), defaultSlide('photo'), defaultSlide('photo'), defaultSlide('ending')];
+// 디버그/딥링크: ?preset=navy&sel=2 로 특정 프리셋·슬라이드 바로 열기
+const _q = new URLSearchParams(location.search);
+if (_q.get('preset') && PRESETS[_q.get('preset')]) applyPreset(_q.get('preset'));
+if (_q.get('sel')) state.sel = Math.min(state.slides.length-1, Math.max(0, +_q.get('sel')||0));
+if (_q.get('ct') && CONTENT_TYPES[_q.get('ct')]){
+  state.contentType = _q.get('ct');
+  const _d = CONTENT_TYPES[state.contentType].disc;
+  if (_d) state.slides.forEach(s=>{ if (s.type==='ending') s.data.disclaimer = _d; });
+}
+renderTypePanel(); renderThemePanel(); render(); renderPanel();
+// 렌더 모드: ?render=1 → UI 없이 현재 슬라이드만 1080×1350 원본 크기로 표시 (헤드리스 캡처용)
+if (_q.has('render')){
+  const holder = document.createElement('div');
+  holder.innerHTML = slideHTML(state.slides[state.sel], state.sel, state.slides.length);
+  document.body.replaceChildren(holder.firstElementChild);
+  document.body.style.cssText = 'margin:0;width:1080px;height:1350px;overflow:hidden;display:block;background:#fff';
+}
+// SVG 검증 모드: ?svgtest=1 → 피그마용 SVG 결과물을 그대로 표시
+if (_q.has('svgtest')){
+  document.body.innerHTML = svgSlide(state.slides[state.sel], state.sel, state.slides.length);
+  document.body.style.cssText = 'margin:0;width:1080px;height:1350px;overflow:hidden;display:block;background:#fff';
+}
+</script>
+</body>
+</html>

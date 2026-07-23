@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>slide3</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{margin:0;width:1080px;height:1350px;overflow:hidden}
+body{
+  background:#EEF3F8;
+  font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;
+  color:#111111;
+  position:relative;
+  word-break:keep-all;
+  -webkit-font-smoothing:antialiased;
+}
+.gridlines{position:absolute;inset:0;pointer-events:none}
+.gridlines i{position:absolute;top:0;bottom:0;width:1px;background:rgba(82,120,174,.055)}
+.gridlines i:nth-child(1){left:270px}
+.gridlines i:nth-child(2){left:540px}
+.gridlines i:nth-child(3){left:810px}
+
+/* header — anchor: top 76 / inset 84 / h 44 (identical on all 4 slides) */
+.header{position:absolute;top:76px;left:84px;right:84px;height:44px;
+  display:flex;justify-content:space-between;align-items:center}
+.header img{width:172px;height:44px;display:block}
+.folio{font-size:26px;font-weight:500;color:#8AA6CC;letter-spacing:.08em}
+.folio b{color:#5278AE;font-weight:800}
+
+/* ghost step number — below header line, same anchor as slide2, clear of title strokes */
+.ghost{position:absolute;top:170px;right:60px;
+  font-size:340px;font-weight:900;line-height:1;letter-spacing:-.04em;
+  color:transparent;-webkit-text-stroke:2.5px #CBDAEB;user-select:none;opacity:.85}
+
+.kicker{position:absolute;left:84px;top:238px;display:flex;align-items:center;gap:18px}
+.kicker .bar{width:44px;height:3px;background:#5278AE}
+.kicker b{font-size:26px;font-weight:800;color:#5278AE;letter-spacing:.1em}
+.kicker .sep{font-size:26px;color:#8AA6CC;font-weight:700}
+.kicker span{font-size:26px;font-weight:700;color:#111111;letter-spacing:-.01em}
+
+h1{position:absolute;left:84px;top:296px;
+  font-size:92px;font-weight:900;line-height:1.24;letter-spacing:-.035em;color:#111111}
+h1 em{font-style:normal;color:#5278AE}
+.dot{display:inline-block;width:16px;height:16px;border-radius:50%;
+  background:#EE0000;margin-left:14px;margin-bottom:8px}
+
+/* checklist cards — series token: radius 28 / shadow 0 18px 50px .08 */
+.list{position:absolute;left:84px;right:84px;top:556px}
+.item{position:relative;height:190px;background:#FFFFFF;border-radius:28px;
+  box-shadow:0 18px 50px rgba(22,36,60,.08);
+  margin-bottom:24px;overflow:hidden}
+.item:last-child{margin-bottom:0}
+.item .num{position:absolute;left:56px;top:50%;transform:translateY(-50%);
+  font-size:124px;font-weight:900;line-height:1;letter-spacing:-.05em;color:#BAC9DF}
+.item .txt{position:absolute;left:264px;top:50%;transform:translateY(-50%)}
+.item .name{font-size:44px;font-weight:800;letter-spacing:-.03em;color:#111111}
+.item .desc{font-size:30px;font-weight:500;letter-spacing:-.02em;color:#555555;
+  margin-top:12px;line-height:1.35}
+
+/* footer — anchor: bottom 74 / inset 84 (identical on all 4 slides) */
+.footer{position:absolute;left:84px;right:84px;bottom:74px;
+  display:flex;justify-content:space-between;align-items:center}
+.tag{font-size:19px;font-weight:600;letter-spacing:.24em;color:#8AA6CC}
+.swipe{display:flex;align-items:center;gap:16px;
+  font-size:24px;font-weight:600;color:#111111;letter-spacing:-.01em}
+</style>
+</head>
+<body>
+  <div class="gridlines"><i></i><i></i><i></i></div>
+
+  <div class="header">
+    <img src="../../brand/logo_korea_bk.svg" alt="한국투자신탁운용">
+    <div class="folio"><b>03</b> / 04</div>
+  </div>
+
+  <div class="ghost">02</div>
+
+  <div class="kicker">
+    <span class="bar"></span><b>STEP 2</b><span class="sep">·</span><span>투자 전 체크리스트</span>
+  </div>
+
+  <h1>이 <em>3가지</em>는<br>꼭 확인!<span class="dot"></span></h1>
+
+  <div class="list">
+    <div class="item">
+      <div class="num">01</div>
+      <div class="txt">
+        <div class="name">기초지수</div>
+        <div class="desc">어떤 지수를 따라가는 ETF인지 확인하세요</div>
+      </div>
+    </div>
+    <div class="item">
+      <div class="num">02</div>
+      <div class="txt">
+        <div class="name">총보수</div>
+        <div class="desc">장기 수익률에 영향을 주는 비용이에요</div>
+      </div>
+    </div>
+    <div class="item">
+      <div class="num">03</div>
+      <div class="txt">
+        <div class="name">거래량</div>
+        <div class="desc">원할 때 사고팔 수 있는 유동성을 보세요</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="tag">ETF BASIC GUIDE</span>
+    <span class="swipe">옆으로 넘겨보세요
+      <svg width="64" height="18" viewBox="0 0 64 18" fill="none">
+        <path d="M0 9h58M50 1.5L59.5 9 50 16.5" stroke="#5278AE" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  </div>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{margin:0;width:1080px;height:1350px;overflow:hidden}
+  body{
+    font-family:'Pretendard',sans-serif;
+    background:#16243C;
+    position:relative;
+    color:#FFFFFF;
+    -webkit-font-smoothing:antialiased;
+  }
+  .bg{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(1000px 780px at 14% 6%, rgba(82,120,174,.20), transparent 68%),
+      linear-gradient(158deg,#243B60 0%,#16243C 62%);
+  }
+  .rings{position:absolute;top:-300px;right:-320px}
+  /* top bar */
+  .topbar{
+    position:absolute;left:84px;right:84px;top:84px;height:44px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .topbar img{height:44px;display:block}
+  .dots{display:flex;gap:10px;align-items:center}
+  .dot{width:10px;height:10px;border-radius:5px;background:rgba(138,166,204,.32)}
+  .dot.on{width:34px;background:#8AA6CC}
+  /* section label */
+  .label{
+    position:absolute;left:84px;top:252px;
+    display:inline-flex;align-items:center;
+    padding:15px 30px;border-radius:999px;
+    background:#5278AE;
+    font-size:26px;font-weight:700;letter-spacing:-0.01em;color:#FFFFFF;
+  }
+  /* title */
+  .title{
+    position:absolute;left:84px;top:352px;
+    font-size:88px;font-weight:900;line-height:1.26;letter-spacing:-0.035em;
+  }
+  .title .reddot{
+    display:inline-block;width:14px;height:14px;border-radius:50%;
+    background:#EE0000;margin-left:14px;margin-bottom:8px;
+  }
+  /* checklist */
+  .list{
+    position:absolute;left:84px;right:84px;bottom:84px;
+    display:flex;flex-direction:column;gap:26px;
+  }
+  .item{
+    display:flex;align-items:center;gap:40px;
+    padding:42px 48px;border-radius:26px;
+    background:rgba(36,59,96,.78);
+    border:1px solid rgba(138,166,204,.24);
+  }
+  .item .no{
+    font-size:58px;font-weight:800;letter-spacing:-0.02em;
+    color:#8AA6CC;flex:none;width:92px;
+  }
+  .item .div{width:1px;height:96px;background:rgba(138,166,204,.28);flex:none}
+  .item .body{display:flex;flex-direction:column;gap:12px}
+  .item .name{font-size:44px;font-weight:800;letter-spacing:-0.03em;color:#FFFFFF}
+  .item .desc{font-size:31px;font-weight:400;letter-spacing:-0.02em;line-height:1.4;color:rgba(220,230,242,.82)}
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <svg class="rings" width="820" height="820" viewBox="0 0 820 820" fill="none">
+    <circle cx="410" cy="410" r="196" stroke="#5278AE" stroke-opacity=".26" stroke-width="1.5"/>
+    <circle cx="410" cy="410" r="292" stroke="#5278AE" stroke-opacity=".16" stroke-width="1.5"/>
+    <circle cx="410" cy="410" r="392" stroke="#5278AE" stroke-opacity=".09" stroke-width="1.5"/>
+  </svg>
+
+  <div class="topbar">
+    <img src="../../brand/logo_korea_wh.svg" alt="한국투자신탁운용">
+    <div class="dots">
+      <div class="dot"></div><div class="dot"></div><div class="dot on"></div><div class="dot"></div>
+    </div>
+  </div>
+
+  <div class="label">STEP 2 · 투자 전 체크리스트</div>
+
+  <div class="title">이 3가지는 꼭 확인!<span class="reddot"></span></div>
+
+  <div class="list">
+    <div class="item">
+      <div class="no">01</div>
+      <div class="div"></div>
+      <div class="body">
+        <div class="name">기초지수</div>
+        <div class="desc">어떤 지수를 따라가는 ETF인지 확인하세요</div>
+      </div>
+    </div>
+    <div class="item">
+      <div class="no">02</div>
+      <div class="div"></div>
+      <div class="body">
+        <div class="name">총보수</div>
+        <div class="desc">장기 수익률에 영향을 주는 비용이에요</div>
+      </div>
+    </div>
+    <div class="item">
+      <div class="no">03</div>
+      <div class="div"></div>
+      <div class="body">
+        <div class="name">거래량</div>
+        <div class="desc">원할 때 사고팔 수 있는 유동성을 보세요</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

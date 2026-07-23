@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.kim.co.kr)",
+      "WebSearch",
+      "WebFetch(domain:kim.koreainvestment.com)",
+      "WebFetch(domain:www.koreaholdings.com)",
+      "Read(//Applications/Google Chrome.app/**)",
+      "Read(//System/Library/Fonts/**)",
+      "Bash(fc-list)",
+      "Bash(ls ~/Library/Fonts /Library/Fonts 2>/dev/null | grep -i pretendard | head)",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --force-device-scale-factor=1 --user-data-dir=/tmp/chrome-gencheck --screenshot=/private/tmp/claude-501/-Users-yjw-Desktop--------------------/5f61298c-fd7d-4c67-ae41-b226fd13f77d/scratchpad/generator-ui.png --window-size=1680,1000 --hide-scrollbars 'file:///Users/yjw/Desktop/클로드-피그마 디자인 연결 프로그램/generator/index.html')",
+      "Bash('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' --headless=new --disable-gpu --force-device-scale-factor=1 --user-data-dir=/tmp/chrome-variant-a --no-first-run --disable-extensions --timeout=15000 '--screenshot=/Users/yjw/Desktop/클로드-피그마 디자인 연결 프로그램/design-explorations/variant-a/slide2.png' --window-size=1080,1350 --hide-scrollbars 'file:///Users/yjw/Desktop/클로드-피그마 디자인 연결 프로그램/design-explorations/variant-a/slide2.html')",
+      "Bash(pkill -f \"chrome-variant-a\")",
+      "Bash(python3 -c ' *)",
+      "Bash(/usr/bin/sips -c 1350 1080 slide1.png --out /dev/null)",
+      "Bash(cp slide1.png __TRACKED_VAR__/z.png)",
+      "Bash(/usr/bin/sips --cropOffset 560 400 -c 160 500 __TRACKED_VAR__/z.png --out __TRACKED_VAR__/zoom1.png)",
+      "Bash(/usr/bin/sips -z 480 1500 __TRACKED_VAR__/zoom1.png)",
+      "Bash(python3 -)",
+      "Skill(artifact-design)",
+      "Skill(artifact-design:*)",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "WebFetch(domain:www.instagram.com)",
+      "Bash(brew install *)",
+      "Bash(python3 -c \"import pdfplumber\")",
+      "Bash(python3 -c \"import pypdf\")",
+      "Bash(pip3 --version)",
+      "Bash(pip3 install *)",
+      "Bash(python3 -c \"import pypdf; print\\('pypdf', pypdf.__version__\\)\")",
+      "Bash(SCRATCH=\"/private/tmp/claude-501/-Users-yjw-Desktop--------------------/5f61298c-fd7d-4c67-ae41-b226fd13f77d/scratchpad\" *)",
+      "Bash(git --version)",
+      "Bash(gh auth *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git -c user.name=yjw -c user.email=yangjoodol1@gmail.com commit -m '한국투자신탁운용 서포터즈 게시물 메이커 — 초기 배포 *)",
+      "Bash(git count-objects *)"
+    ]
+  }
+}

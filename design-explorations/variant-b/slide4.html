@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{margin:0;width:1080px;height:1350px;overflow:hidden}
+  body{
+    font-family:'Pretendard',sans-serif;
+    background:#16243C;
+    position:relative;
+    color:#FFFFFF;
+    -webkit-font-smoothing:antialiased;
+  }
+  .bg{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(1000px 780px at 14% 6%, rgba(82,120,174,.20), transparent 68%),
+      linear-gradient(158deg,#243B60 0%,#16243C 62%);
+  }
+  .rings{position:absolute;top:-300px;right:-320px}
+  /* top bar */
+  .topbar{
+    position:absolute;left:84px;right:84px;top:84px;height:44px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .topbar img{height:44px;display:block}
+  .dots{display:flex;gap:10px;align-items:center}
+  .dot{width:10px;height:10px;border-radius:5px;background:rgba(138,166,204,.32)}
+  .dot.on{width:34px;background:#8AA6CC}
+  /* title */
+  .title{
+    position:absolute;left:84px;top:352px;
+    font-size:88px;font-weight:900;line-height:1.26;letter-spacing:-0.035em;
+  }
+  /* quote card */
+  .quote{
+    position:absolute;left:84px;right:84px;top:560px;
+    border-radius:28px;
+    background:linear-gradient(150deg,#243B60 0%,#1C2E4C 100%);
+    border:1px solid rgba(138,166,204,.28);
+    padding:64px 68px 72px;
+  }
+  .quote .mark{height:56px;margin-bottom:34px;display:block}
+  .quote .txt{
+    font-size:52px;font-weight:700;line-height:1.5;letter-spacing:-0.03em;color:#FFFFFF;
+  }
+  .quote .hl{color:#8AA6CC}
+  /* CTA */
+  .cta{
+    position:absolute;left:84px;top:1044px;
+    display:inline-flex;align-items:center;gap:20px;
+    padding:26px 46px;border-radius:999px;
+    background:#5278AE;
+    box-shadow:0 14px 44px rgba(82,120,174,.35);
+    font-size:31px;font-weight:700;letter-spacing:-0.02em;color:#FFFFFF;
+  }
+  /* disclaimer */
+  .disc{
+    position:absolute;left:84px;right:84px;bottom:84px;
+    border-top:1px solid rgba(255,255,255,.14);
+    padding-top:26px;
+    font-size:20px;font-weight:400;line-height:1.62;letter-spacing:-0.01em;
+    color:rgba(220,230,242,.55);
+    word-break:keep-all;
+  }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <svg class="rings" width="820" height="820" viewBox="0 0 820 820" fill="none">
+    <circle cx="410" cy="410" r="196" stroke="#5278AE" stroke-opacity=".26" stroke-width="1.5"/>
+    <circle cx="410" cy="410" r="292" stroke="#5278AE" stroke-opacity=".16" stroke-width="1.5"/>
+    <circle cx="410" cy="410" r="392" stroke="#5278AE" stroke-opacity=".09" stroke-width="1.5"/>
+  </svg>
+
+  <div class="topbar">
+    <img src="../../brand/logo_korea_wh.svg" alt="한국투자신탁운용">
+    <div class="dots">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot on"></div>
+    </div>
+  </div>
+
+  <div class="title">오늘의 한 줄 정리</div>
+
+  <div class="quote">
+    <svg class="mark" width="74" height="56" viewBox="0 0 74 56" fill="none">
+      <path d="M0 56V33.6C0 20.2 4.6 8.9 16.4 0L28.2 8.2C21.2 13.8 17.4 20 16.8 26.4H30V56H0ZM44 56V33.6C44 20.2 48.6 8.9 60.4 0L72.2 8.2C65.2 13.8 61.4 20 60.8 26.4H74V56H44Z" fill="#5278AE"/>
+    </svg>
+    <div class="txt">
+      ETF는 <span class="hl">‘지수를 통째로 사는’</span><br>
+      가장 간단한 분산투자<br>
+      도구입니다.
+    </div>
+  </div>
+
+  <div class="cta">
+    더 많은 금융 이야기가 궁금하다면 팔로우!
+    <svg width="30" height="24" viewBox="0 0 30 24" fill="none">
+      <path d="M2 12H26M26 12L17 3M26 12L17 21" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="disc">
+    본 콘텐츠는 한국투자신탁운용 서포터즈가 정보 전달을 목적으로 제작한 것으로, 특정 금융투자상품의 매수·매도 권유가 아닙니다. 투자의 책임은 투자자 본인에게 있습니다.
+  </div>
+</body>
+</html>
