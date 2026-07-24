@@ -130,7 +130,7 @@
     </div>
     <div class="row">
       <div class="field"><label>로고 색상</label>
-        <select id="thLogo"><option value="bk">블랙</option><option value="wh">화이트</option><option value="blue">블루</option></select>
+        <select id="thLogo"><option value="bk">블랙</option><option value="wh">화이트</option><option value="blue">블루</option><option value="wordmark">워드마크 (ALLDAY ACE)</option></select>
       </div>
       <div class="field"><label>페이지 표시</label>
         <select id="thPager"><option value="frac">숫자 (01/04)</option><option value="dots">도트</option><option value="none">없음</option></select>
@@ -247,7 +247,7 @@ const PRESETS = {
     logo:'bk', dark:false,
   },
   retroweb: {
-    name:'레트로 웹', style:'retro', primary:'#CDF564', bg:'#5C7FF0', text:'#FFFFFF',
+    name:'레트로 웹', style:'retro', primary:'#CDF564', bg:'#5C7FF0', text:'#FFFFFF', accentOnBg:'#FFFFFF',
     sub:'rgba(255,255,255,.85)', line:'rgba(255,255,255,.4)', chip:'rgba(255,255,255,.2)', card:'#FFFFFF', cardText:'#1D2B66',
     logo:'wh', dark:true,
   },
@@ -262,7 +262,7 @@ const PRESETS = {
     logo:'blue', dark:false,
   },
   windowos: {
-    name:'레트로 창', style:'window', primary:'#E0402E', bg:'#5E7CA3', text:'#FFFFFF',
+    name:'레트로 창', style:'window', primary:'#E0402E', bg:'#5E7CA3', text:'#FFFFFF', accentOnBg:'#F5E96A',
     sub:'rgba(255,255,255,.82)', line:'#1A1A1A', chip:'#F5E96A', card:'#FFFFFF', cardText:'#111111',
     logo:'wh', dark:true,
   },
@@ -483,9 +483,10 @@ function slideHTML(slide, idx, total){
   const fmt = s => hl ? nl2br(s).replace(/\*\*(.+?)\*\*/g, hl[0]+'$1'+hl[1]) : fmtHL(s, t.primary);
   const cardCss = styleCardCss(t);
   const cardText = t.cardText || t.text;
+  const accentBg = t.accentOnBg || t.primary;   // 배경 위 강조색 (저대비 다크테마 대비 확보)
   const kicker = txt => (txt||'').trim() ? `<div style="display:flex;align-items:center;gap:16px">
-    <div style="width:40px;height:3px;background:${t.primary}"></div>
-    <span style="font-size:27px;font-weight:800;color:${t.primary};letter-spacing:.12em">${esc(txt)}</span></div>` : '';
+    <div style="width:40px;height:3px;background:${accentBg}"></div>
+    <span style="font-size:27px;font-weight:800;color:${accentBg};letter-spacing:.12em">${esc(txt)}</span></div>` : '';
   const hairlines = isMag ? [270,540,810].map(x=>`<div style="position:absolute;left:${x}px;top:0;bottom:0;width:1px;background:rgba(82,120,174,.055)"></div>`).join('') : styleBgLayer(t);
   const ghost = (txt, top, size) => isMag ? `<div style="position:absolute;right:-14px;top:${top}px;font-size:${size}px;font-weight:900;line-height:.8;color:transparent;-webkit-text-stroke:2px #CBDAEB;letter-spacing:-.04em;z-index:0">${esc(txt)}</div>` : '';
 
@@ -497,7 +498,7 @@ function slideHTML(slide, idx, total){
       pg = `<div style="font-size:30px;font-weight:800;color:${light?'#fff':t.text};letter-spacing:.04em">${String(idx+1).padStart(2,'0')}<span style="font-weight:500;color:${light?'rgba(255,255,255,.7)':'#8AA6CC'}"> / ${String(total).padStart(2,'0')}</span></div>`;
     } else if (t.pager==='dots' && total>1){
       let ds='';
-      for(let i=0;i<total;i++) ds += `<span style="display:inline-block;width:${i===idx?30:10}px;height:10px;border-radius:10px;background:${light?'#fff':t.primary};opacity:${i===idx?1:.3};margin-left:8px"></span>`;
+      for(let i=0;i<total;i++) ds += `<span style="display:inline-block;width:${i===idx?30:10}px;height:10px;border-radius:10px;background:${light?'#fff':accentBg};opacity:${i===idx?1:.3};margin-left:8px"></span>`;
       pg = `<div style="line-height:0">${ds}</div>`;
     }
     // ALLDAY ACE 크롬 테마: KIM 로고 대신 ALLDAY ACE 워드마크
@@ -510,7 +511,7 @@ function slideHTML(slide, idx, total){
   /* ---- 하단 바: 시리즈 라벨 + 화살표/FIN ---- */
   function bottomBar(light){
     const lblC = light ? 'rgba(255,255,255,.78)' : '#8AA6CC';
-    const arrC = light ? '#FFFFFF' : t.primary;
+    const arrC = light ? '#FFFFFF' : accentBg;
     const right = isLast
       ? `<div style="display:flex;align-items:center;gap:12px"><div style="width:12px;height:12px;background:${arrC}"></div><span style="font-size:24px;font-weight:700;letter-spacing:.28em;color:${arrC}">FIN</span></div>`
       : `<svg width="66" height="16" viewBox="0 0 66 16"><path d="M0 8h60M53 2l7 6-7 6" fill="none" stroke="${arrC}" stroke-width="2.5"/></svg>`;
@@ -648,9 +649,9 @@ function slideHTML(slide, idx, total){
         ${topBar(false)}
         ${ghost(num, 170, 380)}
         <div style="position:absolute;left:${M}px;right:${M}px;top:220px;bottom:220px;display:flex;flex-direction:column;justify-content:center;z-index:1;transform:translateY(${adjY}px)">
-          ${!isMag? `<div style="font-size:60px;font-weight:900;color:${t.primary};letter-spacing:-0.02em;margin-bottom:28px">${num}</div>`:''}
+          ${!isMag? `<div style="font-size:60px;font-weight:900;color:${accentBg};letter-spacing:-0.02em;margin-bottom:28px">${num}</div>`:''}
           <div style="font-size:${S(62)}px;font-weight:800;line-height:1.28;color:${t.text};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.title)}${redDot(14)}</div>
-          <div style="margin-top:34px;width:56px;height:5px;background:${t.primary}"></div>
+          <div style="margin-top:34px;width:56px;height:5px;background:${accentBg}"></div>
           <div style="margin-top:36px;font-size:36px;font-weight:400;line-height:1.65;color:${bodyGray};letter-spacing:-0.01em;word-break:keep-all">${nl2br(d.desc)}</div>
         </div>
         ${bottomBar(false)}
@@ -673,10 +674,10 @@ function slideHTML(slide, idx, total){
       ${ghost(num, 810, 330)}
       <div style="position:absolute;left:${M}px;right:${M}px;top:884px;z-index:1;transform:translateY(${adjY}px)">
         <div style="display:flex;align-items:baseline;gap:20px">
-          ${!isMag? `<div style="font-size:50px;font-weight:900;color:${t.primary};letter-spacing:-0.02em">${num}</div>`:''}
+          ${!isMag? `<div style="font-size:50px;font-weight:900;color:${accentBg};letter-spacing:-0.02em">${num}</div>`:''}
           <div style="font-size:${S(52)}px;font-weight:800;color:${t.text};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.title)}${redDot(13)}</div>
         </div>
-        <div style="margin-top:26px;width:56px;height:5px;background:${t.primary}"></div>
+        <div style="margin-top:26px;width:56px;height:5px;background:${accentBg}"></div>
         <div style="margin-top:28px;font-size:34px;font-weight:400;line-height:1.6;color:${bodyGray};letter-spacing:-0.01em;word-break:keep-all">${nl2br(d.desc)}</div>
       </div>
       ${bottomBar(false)}
@@ -810,6 +811,7 @@ function bindPhotoDrag(root){
       e.preventDefault();
       const idx = +el.dataset.idx;
       const d = state.slides[idx].data;
+      if (!d.pan) d.pan = {x:50,y:50,zoom:100};   // pan 누락 방어 (드래그 크래시 방지)
       const startX=e.clientX, startY=e.clientY, p0={...d.pan};
       const sc = document.getElementById('preview').getBoundingClientRect().width/1080;
       function mv(ev){
@@ -1034,19 +1036,25 @@ function renderTypePanel(){
 }
 document.addEventListener('change', e=>{
   if (e.target.id!=='ctType') return;
-  state.contentType = e.target.value;
-  const ct = CONTENT_TYPES[state.contentType];
-  document.getElementById('ctNote').textContent = ct.note;
+  const prev = state.contentType;
+  const next = e.target.value;
+  const ct = CONTENT_TYPES[next];
   if (ct.disc){
     // 사용자가 유의문구를 직접 수정(심사필 번호 등)했는지 감지 → 덮어쓰기 전 확인
     const known = Object.values(CONTENT_TYPES).map(c=>c.disc).filter(Boolean);
     const custom = state.slides.some(s=>{ if (s.type!=='ending') return false;
       const cur=(s.data.disclaimer||'').trim(); return cur && !known.includes(cur); });
-    if (!custom || confirm('마무리 슬라이드의 유의문구를 직접 수정하셨습니다.\n선택한 유형의 기본 문구로 교체하면 심사필 번호 등 직접 입력한 내용이 사라집니다.\n\n교체할까요?')){
-      state.slides.forEach(s=>{ if (s.type==='ending') s.data.disclaimer = ct.disc; });
-      toast('마무리 슬라이드에 이 유형의 필수 문구를 적용했습니다');
+    if (custom && !confirm('마무리 슬라이드의 유의문구를 직접 수정하셨습니다.\n선택한 유형의 기본 문구로 교체하면 심사필 번호 등 직접 입력한 내용이 사라집니다.\n\n교체할까요?')){
+      e.target.value = prev;  // 취소 시 유형 선택도 이전 값으로 롤백
+      return;
     }
+    state.contentType = next;
+    state.slides.forEach(s=>{ if (s.type==='ending') s.data.disclaimer = ct.disc; });
+    toast('마무리 슬라이드에 이 유형의 필수 문구를 적용했습니다');
+  } else {
+    state.contentType = next;
   }
+  document.getElementById('ctNote').textContent = CONTENT_TYPES[state.contentType].note;
   render(); renderPanel();
 });
 function openGuide(){ document.getElementById('guideModal').style.display='flex'; }
@@ -1056,7 +1064,8 @@ function complianceScan(){
   const issues = [];
   // 유의문구 필드는 검사 대상에서 제외 (필수 문구 자체에 %·상품 문구가 포함됨)
   const allText = state.slides.map(s=>Object.entries(s.data)
-    .filter(([k,v])=>typeof v==='string' && k!=='disclaimer').map(([k,v])=>v).join('\n')).join('\n');
+    .filter(([k,v])=>typeof v==='string' && k!=='disclaimer' && k!=='img' && k!=='tpl' && !v.startsWith('data:'))
+    .map(([k,v])=>v).join('\n')).join('\n');
   if (state.contentType!=='staff' && /ACE\s+(?!ETF\b|서포터즈)[가-힣A-Za-z0-9&+·]{2,}/.test(allText))
     issues.push('상품명으로 보이는 표현(ACE ○○○)이 감지됐습니다. 임직원 미출연 콘텐츠는 구체적 상품명 언급이 불가합니다.');
   if (/\(\d{6}\)|[0-9]{6}[A-Z]0/.test(allText))
@@ -1374,12 +1383,14 @@ function svgSlide(slide, idx, total){
 }
 function exportSVGOne(){
   if (!state.slides.length) return;
+  if (!confirmCompliance()) return;
   const svg = svgSlide(state.slides[state.sel], state.sel, state.slides.length);
   download(`slide-${String(state.sel+1).padStart(2,'0')}-figma.svg`, new Blob([svg],{type:'image/svg+xml'}));
   toast('피그마 편집용 SVG 저장 — 피그마 캔버스에 끌어다 놓으세요');
 }
 async function exportSVGAll(){
   if (!state.slides.length) return;
+  if (!confirmCompliance()) return;
   for (let i=0;i<state.slides.length;i++){
     const svg = svgSlide(state.slides[i], i, state.slides.length);
     download(`slide-${String(i+1).padStart(2,'0')}-figma.svg`, new Blob([svg],{type:'image/svg+xml'}));
@@ -1442,13 +1453,16 @@ function loadProject(){
     const r = new FileReader();
     r.onload = ()=>{ try{
       const pj = JSON.parse(r.result);
-      if (!pj.slides){ toast('프로젝트 파일이 아닙니다'); return; }
+      if (!Array.isArray(pj.slides) || !pj.slides.length || !pj.slides.every(s=>s&&typeof s==='object'&&s.type&&s.data)){ toast('프로젝트 파일이 아닙니다'); return; }
       // 구버전/부분 테마 방어: 프리셋 기본값 + 공통 기본값 위에 저장된 값을 병합 (누락 필드로 인한 NaN 방지)
       const baseP = PRESETS[(pj.theme&&pj.theme.preset)] || PRESETS.magazine;
       state.theme = { preset:'magazine', ...JSON.parse(JSON.stringify(baseP)),
         badge:'한국투자신탁운용 서포터즈', handle:'@kim_supporters', footerLabel:'SUPPORTERS LOG',
         redDot:'on', pager:'frac', scale:100, coverAlign:'center', ...(pj.theme||{}) };
-      state.slides = pj.slides; state.sel = 0;
+      // 슬라이드 정규화 — pan/adj 누락 시 기본값 보정 (드래그/슬라이더 크래시 방지)
+      state.slides = pj.slides.map(s=>({ type:s.type, data:{ ...s.data,
+        pan: s.data.pan || {x:50,y:50,zoom:100}, adj: s.data.adj || {y:0,scale:100,color:''} } }));
+      state.sel = 0;
       if (pj.contentType && CONTENT_TYPES[pj.contentType]) state.contentType = pj.contentType;
       renderTypePanel(); renderThemePanel(); render(); renderPanel(); toast('프로젝트를 불러왔습니다');
     }catch(e){ toast('파일을 읽을 수 없습니다'); } };
@@ -1458,7 +1472,7 @@ function loadProject(){
 }
 function autosave(){
   try{
-    const slim = { theme:state.theme,
+    const slim = { theme:state.theme, contentType:state.contentType,
       slides:state.slides.map(s=>({type:s.type, data:{...s.data, img: s.data.img ? '(사진은 자동저장 제외)' : null, tpl: s.data.tpl ? '(템플릿은 자동저장 제외)' : null }})) };
     localStorage.setItem('kimMakerAutosave', JSON.stringify(slim));
   }catch(e){}
@@ -1473,9 +1487,28 @@ function toast(msg){
 /* ============================================================
    초기화 — 기본 4장 구성
    ============================================================ */
-state.slides = [defaultSlide('cover'), defaultSlide('photo'), defaultSlide('photo'), defaultSlide('ending')];
 // 디버그/딥링크: ?preset=navy&sel=2 로 특정 프리셋·슬라이드 바로 열기
 const _q = new URLSearchParams(location.search);
+state.slides = [defaultSlide('cover'), defaultSlide('photo'), defaultSlide('photo'), defaultSlide('ending')];
+// 자동 저장 복원 — 딥링크·헤드리스 모드가 아닐 때만, 직전 작업을 이어서
+(function(){
+  if (_q.has('demo')||_q.has('preset')||_q.has('render')||_q.has('svgtest')) return;
+  try{
+    const saved = localStorage.getItem('kimMakerAutosave');
+    if (!saved) return;
+    const s = JSON.parse(saved);
+    if (!s || !Array.isArray(s.slides) || !s.slides.length) return;
+    if (s.theme) state.theme = s.theme;
+    if (s.contentType && CONTENT_TYPES[s.contentType]) state.contentType = s.contentType;
+    let hadMedia = false;
+    state.slides = s.slides.map(sl=>{
+      const stripped = v => (typeof v==='string' && v.startsWith('(')) ? (hadMedia=true, null) : (v||null);
+      return { type:sl.type, data:{ ...sl.data, img:stripped(sl.data.img), tpl:stripped(sl.data.tpl),
+        pan: sl.data.pan||{x:50,y:50,zoom:100}, adj: sl.data.adj||{y:0,scale:100,color:''} } };
+    });
+    setTimeout(()=>toast(hadMedia ? '이전 작업을 복원했습니다 (사진·템플릿은 다시 추가해 주세요)' : '이전 작업을 복원했습니다'), 500);
+  }catch(e){}
+})();
 // 예시 콘텐츠: ?demo=etf → ETF 기초 카드뉴스 샘플 로드
 if (_q.get('demo')==='etf'){
   state.contentType = 'edu';
