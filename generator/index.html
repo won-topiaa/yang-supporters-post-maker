@@ -131,6 +131,10 @@
         <select id="thRedDot"><option value="on">사용</option><option value="off">미사용</option></select>
       </div>
     </div>
+    <div class="field"><label>표지 제목 정렬</label>
+      <select id="thCoverAlign"><option value="center">가운데 (그리드 안전 · 권장)</option><option value="left">좌측 하단</option></select>
+    </div>
+    <p class="hint">인스타 그리드는 좌우를 크게 잘라냅니다. <b>가운데 정렬</b>이면 어느 화면에서도 제목이 안 잘립니다.</p>
     <div class="field"><label>타이틀 크기 <span id="thScaleV"></span></label><input type="range" id="thScale" min="80" max="120" value="100"></div>
     <div class="row">
       <button class="btn sub" style="flex:1" onclick="exportTheme()">테마 내보내기</button>
@@ -376,6 +380,7 @@ let state = {
     redDot:'on',
     pager:'frac',
     scale:100,
+    coverAlign:'center',
   },
   slides: [],
   sel: 0,
@@ -428,6 +433,8 @@ function slideHTML(slide, idx, total){
   const S = v => Math.round(v * t.scale/100 * ((adj.scale||100)/100));
   const adjY = adj.y||0;
   const textColorOv = (adj.color||'').trim() || null;
+  const covCenter = (t.coverAlign||'center')==='center';   // 표지 가운데 정렬(그리드 크롭 안전)
+  const covAlignCss = covCenter ? 'text-align:center;' : '';
   const M = 84; // 좌우 마진
   const isMag = t.preset==='magazine';
   const isLast = idx===total-1;
@@ -515,7 +522,7 @@ function slideHTML(slide, idx, total){
         <div class="photodrag" data-idx="${idx}" style="position:absolute;inset:0;${photoCSS(d)}"></div>
         <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,36,60,.28) 0%,rgba(22,36,60,.84) 82%);pointer-events:none"></div>
         ${topBar(true)}
-        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;pointer-events:none;transform:translateY(${adjY}px)">
+        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;pointer-events:none;transform:translateY(${adjY}px);${covAlignCss}">
           <div><span style="display:inline-block;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.6);color:#fff;font-size:26px;font-weight:700;border-radius:40px;padding:12px 28px">${esc(t.badge)}</span></div>
           <div style="margin-top:44px;font-size:${S(94)}px;font-weight:900;line-height:1.2;letter-spacing:-0.03em;color:#fff;word-break:keep-all">${fmt(d.title)}${redDot(16)}</div>
           <div style="margin-top:30px;font-size:34px;font-weight:500;color:rgba(255,255,255,.86);letter-spacing:-0.01em">${esc(d.subtitle)}</div>
@@ -528,7 +535,7 @@ function slideHTML(slide, idx, total){
         ${hairlines}
         ${topBar(false)}
         ${styleCoverDeco(t)}
-        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;z-index:2;transform:translateY(${adjY}px)">
+        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;z-index:2;transform:translateY(${adjY}px);${covAlignCss}">
           <div><span style="display:inline-block;font-size:26px;font-weight:700;padding:14px 30px;${styleBadgeCss(t)}">${esc(t.badge)}</span></div>
           <div style="margin-top:48px;font-size:${S(96)}px;font-weight:900;line-height:1.24;letter-spacing:-0.03em;color:${t.text};word-break:keep-all;${styleTitleCss(t)}">${fmt(d.title)}${redDot(18)}</div>
           <div style="margin-top:34px;font-size:34px;font-weight:500;color:${t.sub};letter-spacing:-0.01em">${esc(d.subtitle)}</div>
@@ -542,10 +549,10 @@ function slideHTML(slide, idx, total){
         ${topBar(false)}
         <div style="position:absolute;left:${M}px;right:${M}px;top:225px;bottom:225px;background:#FFFFFF;border-radius:32px;box-shadow:${shadow};overflow:hidden">
           ${(d.ghost||'').trim()? `<div style="position:absolute;right:-50px;bottom:-90px;font-size:600px;font-weight:900;line-height:1;color:#EAF1F8;letter-spacing:-.05em">${esc(d.ghost)}</div>`:''}
-          <div style="position:absolute;left:72px;right:72px;top:96px;bottom:96px;transform:translateY(${adjY}px)">
+          <div style="position:absolute;left:72px;right:72px;top:96px;bottom:96px;transform:translateY(${adjY}px);${covAlignCss}">
             <div><span style="display:inline-block;background:#16243C;color:#fff;font-size:26px;font-weight:700;border-radius:40px;padding:14px 30px">${esc(t.badge)}</span></div>
             <div style="margin-top:64px;font-size:${S(94)}px;font-weight:900;line-height:1.22;letter-spacing:-0.035em;color:#111111;word-break:keep-all">${fmt(d.title)}${redDot(18)}</div>
-            <div style="margin-top:44px;width:56px;height:5px;background:${t.primary}"></div>
+            <div style="margin-top:44px;${covCenter?'margin-left:auto;margin-right:auto;':''}width:56px;height:5px;background:${t.primary}"></div>
             <div style="margin-top:34px;font-size:34px;font-weight:500;color:#555555;letter-spacing:-0.01em">${esc(d.subtitle)}</div>
           </div>
         </div>
@@ -558,7 +565,7 @@ function slideHTML(slide, idx, total){
         <div style="position:absolute;right:-160px;top:-160px;width:520px;height:520px;border-radius:50%;border:2px solid #33517D;opacity:.5"></div>
         <div style="position:absolute;right:-60px;top:-60px;width:520px;height:520px;border-radius:50%;border:2px solid #33517D;opacity:.3"></div>
         ${topBar(false)}
-        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;transform:translateY(${adjY}px)">
+        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;transform:translateY(${adjY}px);${covAlignCss}">
           <div><span style="display:inline-block;background:rgba(82,120,174,.25);border:1.5px solid #5278AE;color:#fff;font-size:26px;font-weight:700;border-radius:40px;padding:12px 28px">${esc(t.badge)}</span></div>
           <div style="margin-top:44px;font-size:${S(94)}px;font-weight:900;line-height:1.2;letter-spacing:-0.03em;color:#fff;word-break:keep-all">${fmtHL(d.title,'#8AA6CC')}${redDot(16)}</div>
           <div style="margin-top:30px;font-size:34px;font-weight:500;color:#8AA6CC;letter-spacing:-0.01em">${esc(d.subtitle)}</div>
@@ -570,8 +577,8 @@ function slideHTML(slide, idx, total){
     return `<div class="canvas" style="background:${t.bg}">
       <div style="position:absolute;left:0;bottom:0;width:100%;height:14px;background:${t.primary}"></div>
       ${topBar(false)}
-      <div style="position:absolute;left:${M}px;top:300px;width:150px;height:6px;background:${t.primary}"></div>
-      <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;transform:translateY(${adjY}px)">
+      ${covCenter?'':`<div style="position:absolute;left:${M}px;top:300px;width:150px;height:6px;background:${t.primary}"></div>`}
+      <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;transform:translateY(${adjY}px);${covAlignCss}">
         <div><span style="display:inline-block;border:2px solid ${t.primary};color:${t.primary};font-size:26px;font-weight:700;border-radius:40px;padding:12px 28px">${esc(t.badge)}</span></div>
         <div style="margin-top:44px;font-size:${S(94)}px;font-weight:900;line-height:1.22;letter-spacing:-0.035em;color:${t.text};word-break:keep-all">${fmt(d.title)}${redDot(16)}</div>
         <div style="margin-top:30px;font-size:34px;font-weight:500;color:${t.sub};letter-spacing:-0.01em">${esc(d.subtitle)}</div>
@@ -923,17 +930,18 @@ function renderThemePanel(){
   document.getElementById('thLogo').value = t.logo;
   document.getElementById('thPager').value = t.pager;
   document.getElementById('thRedDot').value = t.redDot||'on';
+  document.getElementById('thCoverAlign').value = t.coverAlign||'center';
   document.getElementById('thScale').value = t.scale;
   document.getElementById('thScaleV').textContent = t.scale+'%';
 }
 function applyPreset(key){
   const keep = { badge:state.theme.badge, handle:state.theme.handle, footerLabel:state.theme.footerLabel,
-    redDot:state.theme.redDot, pager:state.theme.pager, scale:state.theme.scale };
+    redDot:state.theme.redDot, pager:state.theme.pager, scale:state.theme.scale, coverAlign:state.theme.coverAlign };
   state.theme = { preset:key, ...JSON.parse(JSON.stringify(PRESETS[key])), ...keep };
   renderThemePanel(); render();
 }
 [['thPrimary','primary'],['thBg','bg'],['thText','text'],['thBadge','badge'],
- ['thHandle','handle'],['thFooterLabel','footerLabel'],['thLogo','logo'],['thPager','pager'],['thRedDot','redDot']]
+ ['thHandle','handle'],['thFooterLabel','footerLabel'],['thLogo','logo'],['thPager','pager'],['thRedDot','redDot'],['thCoverAlign','coverAlign']]
 .forEach(([id,key])=>{
   document.addEventListener('input', e=>{
     if (e.target.id===id){ state.theme[key]=e.target.value; render(); }
@@ -1362,7 +1370,7 @@ function loadProject(){
       const baseP = PRESETS[(pj.theme&&pj.theme.preset)] || PRESETS.magazine;
       state.theme = { preset:'magazine', ...JSON.parse(JSON.stringify(baseP)),
         badge:'한국투자신탁운용 서포터즈', handle:'@kim_supporters', footerLabel:'SUPPORTERS LOG',
-        redDot:'on', pager:'frac', scale:100, ...(pj.theme||{}) };
+        redDot:'on', pager:'frac', scale:100, coverAlign:'center', ...(pj.theme||{}) };
       state.slides = pj.slides; state.sel = 0;
       if (pj.contentType && CONTENT_TYPES[pj.contentType]) state.contentType = pj.contentType;
       renderTypePanel(); renderThemePanel(); render(); renderPanel(); toast('프로젝트를 불러왔습니다');

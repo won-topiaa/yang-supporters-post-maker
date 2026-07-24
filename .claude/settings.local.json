@@ -68,7 +68,13 @@
       "WebFetch(domain:recurpost.com)",
       "WebFetch(domain:sproutsocial.com)",
       "Bash(find /Users/yjw/.claude/projects *)",
-      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '인스타 세이프존 가이드 추가 \\(그리드 크롭 방지\\) *)"
+      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '인스타 세이프존 가이드 추가 \\(그리드 크롭 방지\\) *)",
+      "Bash(ls -la /private/tmp/claude-501/-Users-yjw-Desktop--------------------/1dd93ec0-deda-44d9-9269-4b4ee9384ea7/scratchpad/ph.png)",
+      "Bash(grep -n \"thRedDot'\\).value\\\\|thRedDot','redDot'\\\\|applyPreset\\(key\\)\\\\|const keep = {\" \"/Users/yjw/Desktop/클로드-피그마 디자인 연결 프로그램/generator/index.html\")",
+      "Bash(curl -s \"https://won-topiaa.github.io/\")",
+      "Bash(curl -s \"https://won-topiaa.github.io/macro-calendar/\")",
+      "Bash(sed -e '/^<!DOCTYPE html>$/d' -e '/^<html lang=\"ko\">$/d' -e '/^<head>$/d' -e '/^<meta charset=\"utf-8\">$/d' -e '/^<\\\\/head>$/d' -e '/^<body>$/d' -e '/^<\\\\/body>$/d' -e '/^<\\\\/html>$/d' \"/Users/yjw/Desktop/클로드-피그마 디자인 연결 프로그램/generator/index.html\")",
+      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '표지 제목 가운데 정렬 기본화 \\(그리드 크롭 방지\\) *)"
     ]
   }
 }
