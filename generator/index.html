@@ -271,7 +271,30 @@ const PRESETS = {
     sub:'rgba(255,255,255,.8)', line:'rgba(255,255,255,.35)', chip:'rgba(255,255,255,.15)', card:'#FFFFFF', cardText:'#1D3557',
     logo:'wh', dark:true,
   },
+  allday: {
+    name:'ALLDAY ACE (크롬)', style:'chrome', primary:'#527499', bg:'#F4F5F7', text:'#2A2320',
+    sub:'#6A6560', line:'#E2E4E8', chip:'#F0F1F4', card:'#FFFFFF', cardText:'#2A2320',
+    logo:'wordmark', dark:false, maroon:'#582E21',
+  },
 };
+
+/* ---- ALLDAY ACE 크롬 홀로그램 배지 (로고/영상 분석 재현) ---- */
+function chromeBadge(size, aSize, bSize){
+  aSize = aSize || Math.round(size*0.185);
+  bSize = bSize || Math.round(size*0.195);
+  return `<div style="position:relative;width:${size}px;height:${size}px;border-radius:50%;
+    background:
+      radial-gradient(120% 90% at 34% 22%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 42%),
+      linear-gradient(125deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.85) 46%, rgba(255,255,255,0) 58%),
+      conic-gradient(from 200deg at 50% 50%, #cfd8e4 0deg,#aebfd4 40deg,#8fa0b5 78deg,#b9c2cf 120deg,#ddc9ab 165deg,#d7b9c1 200deg,#bfe0e0 240deg,#9fb2c8 290deg,#cfd8e4 360deg);
+    box-shadow: inset 0 3px 10px rgba(255,255,255,.7), inset 0 -14px 30px rgba(80,96,120,.35), 0 30px 60px rgba(60,80,110,.22);">
+    <div style="position:absolute;inset:0;border-radius:50%;box-shadow: inset 0 0 0 3px rgba(255,255,255,.55), inset 0 0 0 5px rgba(120,140,165,.35)"></div>
+    <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;line-height:.92;z-index:2">
+      <div style="font-size:${aSize}px;font-weight:900;color:#582E21;letter-spacing:-.01em">ALLDAY</div>
+      <div style="font-size:${bSize}px;font-weight:900;color:#527499;letter-spacing:.02em">ACE</div>
+    </div>
+  </div>`;
+}
 
 /* ---- 스타일 팩 (이전 기수 서포터즈 인스타 레퍼런스 기반) ---- */
 function styleOf(t){ return t.style || (PRESETS[t.preset] && PRESETS[t.preset].style) || 'clean'; }
@@ -284,6 +307,9 @@ function styleBgLayer(t){
     <div style="position:absolute;right:-70px;top:320px;width:350px;height:112px;background:#FFFFFF;opacity:.55;border-radius:100px"></div>
     <div style="position:absolute;left:110px;bottom:170px;width:310px;height:100px;background:#FFFFFF;opacity:.45;border-radius:100px"></div>`;
   if (s==='grid') return `<div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.15) 2px, transparent 2px),linear-gradient(90deg, rgba(255,255,255,.15) 2px, transparent 2px);background-size:54px 54px"></div>`;
+  if (s==='chrome') return `
+    <div style="position:absolute;left:-140px;top:120px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(174,191,212,.30),transparent 65%);filter:blur(30px)"></div>
+    <div style="position:absolute;right:-160px;bottom:60px;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(215,185,193,.26),transparent 65%);filter:blur(34px)"></div>`;
   return '';
 }
 function styleHlSpan(t){
@@ -474,8 +500,12 @@ function slideHTML(slide, idx, total){
       for(let i=0;i<total;i++) ds += `<span style="display:inline-block;width:${i===idx?30:10}px;height:10px;border-radius:10px;background:${light?'#fff':t.primary};opacity:${i===idx?1:.3};margin-left:8px"></span>`;
       pg = `<div style="line-height:0">${ds}</div>`;
     }
+    // ALLDAY ACE 크롬 테마: KIM 로고 대신 ALLDAY ACE 워드마크
+    const brand = t.logo==='wordmark'
+      ? `<div style="font-size:28px;font-weight:800;color:${light?'#fff':'#582E21'};letter-spacing:.02em">ALLDAY <span style="color:${light?'#fff':'#527499'}">ACE</span></div>`
+      : logoSVG(lc, 40);
     return `<div style="position:absolute;left:${M}px;right:${M}px;top:80px;display:flex;justify-content:space-between;align-items:center;z-index:5;pointer-events:none">
-      ${logoSVG(lc, 40)}${pg}</div>`;
+      ${brand}${pg}</div>`;
   }
   /* ---- 하단 바: 시리즈 라벨 + 화살표/FIN ---- */
   function bottomBar(light){
@@ -536,6 +566,19 @@ function slideHTML(slide, idx, total){
           <div style="margin-top:30px;font-size:34px;font-weight:500;color:rgba(255,255,255,.86);letter-spacing:-0.01em">${esc(d.subtitle)}</div>
         </div>
         ${bottomBar(true)}
+      </div>`;
+    }
+    if (sty==='chrome'){
+      return `<div class="canvas" style="background:${t.bg}">
+        ${hairlines}
+        ${topBar(false)}
+        <div style="position:absolute;left:340px;top:250px;transform:translateY(${adjY}px)">${chromeBadge(400)}</div>
+        <div style="position:absolute;left:${M}px;right:${M}px;top:730px;text-align:center;transform:translateY(${adjY}px)">
+          ${(t.badge||'').trim()?`<div><span style="display:inline-block;background:#582E21;color:#fff;font-size:25px;font-weight:700;border-radius:40px;padding:12px 28px">${esc(t.badge)}</span></div>`:''}
+          <div style="margin-top:40px;font-size:${S(88)}px;font-weight:900;line-height:1.2;letter-spacing:-.03em;color:${t.text};word-break:keep-all">${fmt(d.title)}${redDot(16)}</div>
+          <div style="margin-top:30px;font-size:33px;font-weight:500;color:${t.sub}">${esc(d.subtitle)}</div>
+        </div>
+        ${bottomBar(false)}
       </div>`;
     }
     if (sty!=='clean'){
@@ -1176,7 +1219,11 @@ function svgSlide(slide, idx, total){
     P.push(`<image href="${d.tpl}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none"/>`);
   } else {
     // 상단: 로고 + 페이지
-    P.push(`<g transform="translate(${M},80)" fill="${logoC}">${LOGO_PATHS}</g>`);
+    if (t.logo==='wordmark'){
+      P.push(`<text x="${M}" y="112" font-family="Pretendard, sans-serif" font-size="28" font-weight="800" fill="#582E21">ALLDAY <tspan fill="#527499">ACE</tspan></text>`);
+    } else {
+      P.push(`<g transform="translate(${M},80)" fill="${logoC}">${LOGO_PATHS}</g>`);
+    }
     if (t.pager==='frac' && total>1)
       P.push(svgText([`${String(idx+1).padStart(2,'0')} / ${String(total).padStart(2,'0')}`], W-M, 110, 30, 800, t.text, 1.2, 'end'));
     else if (t.pager==='dots' && total>1){
@@ -1195,6 +1242,28 @@ function svgSlide(slide, idx, total){
   const tcT = coverBg ? '#FFFFFF' : (tplMode ? ((adj.color||'').trim()||t.text) : t.text);
   const tcB = coverBg ? bodyC : (tplMode ? ((adj.color||'').trim()||bodyC) : bodyC);
 
+  if (slide.type==='cover' && styleOf(t)==='chrome' && !tplMode){
+    // ALLDAY ACE 크롬 배지 표지 (피그마 재편집용 — 홀로그램은 방사형 근사)
+    const cx=W/2, by=250+adjY, bs=400;
+    P.push(`<defs><radialGradient id="chr${idx}" cx="38%" cy="28%" r="75%">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="45%" stop-color="#d3dbe6"/>
+      <stop offset="78%" stop-color="#aebccd"/><stop offset="100%" stop-color="#8b9bb0"/></radialGradient></defs>`);
+    P.push(`<circle cx="${cx}" cy="${by+bs/2}" r="${bs/2}" fill="url(#chr${idx})" stroke="#ffffff" stroke-width="4"/>`);
+    P.push(svgText(['ALLDAY'], cx, by+bs/2-6, 74, 900, '#582E21', 1, 'middle'));
+    P.push(svgText(['ACE'], cx, by+bs/2+72, 78, 900, '#527499', 1, 'middle'));
+    let y2 = 730+adjY;
+    if ((t.badge||'').trim()){
+      const bw=Math.round(measureW(t.badge,'700',25))+56;
+      P.push(`<rect x="${cx-bw/2}" y="${y2}" width="${bw}" height="52" rx="26" fill="#582E21"/>`);
+      P.push(svgText([t.badge], cx, y2+34, 25, 700, '#FFFFFF', 1.2, 'middle'));
+      y2 += 52+40;
+    }
+    const tS=S(88), tL=wrapLines(d.title,900,tS,CW);
+    P.push(svgText(tL, cx, y2+Math.round(tS*0.82), tS, 900, t.text, 1.2, 'middle'));
+    y2 += tL.length*Math.round(tS*1.2)+30;
+    P.push(svgText(wrapLines(d.subtitle,500,33,CW), cx, y2+30, 33, 500, t.sub, 1.4, 'middle'));
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${P.join('\n')}</svg>`;
+  }
   if (slide.type==='cover'){
     const tSize = S(94), tLines = wrapLines(d.title, 900, tSize, CW);
     const stack = 54+48 + tLines.length*Math.round(tSize*1.24) + (tplMode?0:44+5+34) + 30 + 44;

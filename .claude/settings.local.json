@@ -79,7 +79,13 @@
       "Bash(/usr/bin/curl -s -o /dev/null -w \"manifest.webmanifest: HTTP %{http_code}\\\\n\" \"https://won-topiaa.github.io/macro-calendar/manifest.webmanifest\")",
       "Bash(/usr/bin/curl -s \"https://won-topiaa.github.io/macro-calendar/\")",
       "Bash(/usr/bin/grep -ioE \"manifest[^\\\\\"'>]*|apple-mobile-web-app[^\\\\\"'>]*|application-name\")",
-      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '독립 웹앱 manifest·아이콘 추가 \\(매크로허브 앱과 분리\\) *)"
+      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '독립 웹앱 manifest·아이콘 추가 \\(매크로허브 앱과 분리\\) *)",
+      "Bash(ls -la /Users/yjw/Downloads/KakaoTalk_Video_2026-07-24-14-44-24.mp4)",
+      "Bash(echo \"=== ffmpeg 확인 ===\")",
+      "Bash(which ffmpeg *)",
+      "Bash(echo \"ffmpeg 없음\")",
+      "Bash(echo \"=== 대안 도구 ===\")",
+      "Bash(grep -n 'transform=\"translate\\(${M},80\\)\" fill=\"${logoC}\">${LOGO_PATHS}' \"/Users/yjw/Desktop/클로드-피그마 디자인 연결 프로그램/generator/index.html\")"
     ]
   }
 }
