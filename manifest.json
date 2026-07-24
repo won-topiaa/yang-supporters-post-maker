@@ -1,0 +1,16 @@
+{
+  "id": "/yang-supporters-post-maker/",
+  "name": "한국투자신탁운용 서포터즈 게시물 메이커",
+  "short_name": "게시물 메이커",
+  "description": "사진과 설명을 넣으면 브랜드 디자인의 인스타그램 게시물이 만들어지는 도구",
+  "start_url": "/yang-supporters-post-maker/generator/index.html",
+  "scope": "/yang-supporters-post-maker/",
+  "display": "standalone",
+  "background_color": "#14171c",
+  "theme_color": "#5278AE",
+  "lang": "ko",
+  "icons": [
+    { "src": "/yang-supporters-post-maker/brand/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/yang-supporters-post-maker/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

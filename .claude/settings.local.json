@@ -74,7 +74,12 @@
       "Bash(curl -s \"https://won-topiaa.github.io/\")",
       "Bash(curl -s \"https://won-topiaa.github.io/macro-calendar/\")",
       "Bash(sed -e '/^<!DOCTYPE html>$/d' -e '/^<html lang=\"ko\">$/d' -e '/^<head>$/d' -e '/^<meta charset=\"utf-8\">$/d' -e '/^<\\\\/head>$/d' -e '/^<body>$/d' -e '/^<\\\\/body>$/d' -e '/^<\\\\/html>$/d' \"/Users/yjw/Desktop/클로드-피그마 디자인 연결 프로그램/generator/index.html\")",
-      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '표지 제목 가운데 정렬 기본화 \\(그리드 크롭 방지\\) *)"
+      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '표지 제목 가운데 정렬 기본화 \\(그리드 크롭 방지\\) *)",
+      "Bash(/usr/bin/curl -s -o /dev/null -w \"manifest.json: HTTP %{http_code}\\\\n\" \"https://won-topiaa.github.io/macro-calendar/manifest.json\")",
+      "Bash(/usr/bin/curl -s -o /dev/null -w \"manifest.webmanifest: HTTP %{http_code}\\\\n\" \"https://won-topiaa.github.io/macro-calendar/manifest.webmanifest\")",
+      "Bash(/usr/bin/curl -s \"https://won-topiaa.github.io/macro-calendar/\")",
+      "Bash(/usr/bin/grep -ioE \"manifest[^\\\\\"'>]*|apple-mobile-web-app[^\\\\\"'>]*|application-name\")",
+      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '독립 웹앱 manifest·아이콘 추가 \\(매크로허브 앱과 분리\\) *)"
     ]
   }
 }
