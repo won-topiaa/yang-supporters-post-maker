@@ -53,7 +53,22 @@
       "Bash(xargs -I{} sed -n '{}p' generator/index.html)",
       "Bash(pkill -f \"chrome-log\")",
       "Bash(pkill -f \"chrome-q\")",
-      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '코드 전수 리뷰 후 결함 8건 수정 *)"
+      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '코드 전수 리뷰 후 결함 8건 수정 *)",
+      "WebFetch(domain:zeely.ai)",
+      "WebFetch(domain:campaignswift.com)",
+      "WebFetch(domain:www.planoly.com)",
+      "WebFetch(domain:www.kapwing.com)",
+      "WebFetch(domain:buffer.com)",
+      "WebFetch(domain:blog.hootsuite.com)",
+      "WebFetch(domain:www.oktopost.com)",
+      "WebFetch(domain:creatorflow.so)",
+      "WebFetch(domain:grid34sync.com)",
+      "WebFetch(domain:www.boderia.io)",
+      "WebFetch(domain:www.firstpier.com)",
+      "WebFetch(domain:recurpost.com)",
+      "WebFetch(domain:sproutsocial.com)",
+      "Bash(find /Users/yjw/.claude/projects *)",
+      "Bash(git -c user.name=won-topiaa -c user.email=yangjoodol1@gmail.com commit -m '인스타 세이프존 가이드 추가 \\(그리드 크롭 방지\\) *)"
     ]
   }
 }

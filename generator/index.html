@@ -34,7 +34,14 @@
     radial-gradient(1200px 800px at 50% 30%, #1a2027 0%, #14171c 70%);}
   #previewWrap{position:relative; box-shadow:0 24px 80px rgba(0,0,0,.5); border-radius:4px; overflow:hidden;}
   #preview{width:1080px; height:1350px; transform-origin:top left;}
-  #stageInfo{position:absolute; bottom:18px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--ui-dim);}
+  #safezone{position:absolute; left:0; top:0; width:1080px; height:1350px; transform-origin:top left; pointer-events:none; z-index:5;}
+  #safezone .band{position:absolute; background:rgba(238,0,0,.16);}
+  #safezone .bandsq{position:absolute; background:repeating-linear-gradient(45deg, rgba(255,150,0,.13) 0 10px, rgba(255,150,0,.03) 10px 20px);}
+  #safezone .lineG{position:absolute; background:rgba(238,0,0,.85);}
+  #safezone .lineS{position:absolute; border:0; border-top:2px dashed rgba(255,150,0,.9);}
+  #safezone .szlabel{position:absolute; font:600 20px 'Pretendard',sans-serif; padding:5px 12px; border-radius:6px; color:#fff; white-space:nowrap;}
+  #stageInfo{position:absolute; bottom:14px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--ui-dim); background:rgba(20,23,28,.82); padding:6px 12px; border-radius:20px;}
+  #stageInfo input{cursor:pointer;}
   /* ---------- 우: 편집 패널 ---------- */
   #panel{width:340px; min-width:340px; background:var(--ui-panel); border-left:1px solid var(--ui-line); overflow-y:auto;}
   #panel section{padding:16px; border-bottom:1px solid var(--ui-line);}
@@ -84,8 +91,11 @@
 
 <!-- 중앙: 미리보기 -->
 <div id="stage">
-  <div id="previewWrap"><div id="preview"></div></div>
-  <div id="stageInfo">1080 × 1350 (인스타그램 4:5) · 사진은 미리보기에서 드래그해 위치 조정</div>
+  <div id="previewWrap"><div id="preview"></div><div id="safezone"></div></div>
+  <div id="stageInfo">
+    <label style="cursor:pointer"><input type="checkbox" id="szToggle" checked style="vertical-align:middle"> 세이프존 가이드</label>
+    <span style="opacity:.6"> · 1080×1350 · 사진은 드래그로 위치 조정</span>
+  </div>
 </div>
 
 <!-- 우측: 편집 패널 -->
@@ -370,6 +380,7 @@ let state = {
   slides: [],
   sel: 0,
   contentType: 'review',
+  safezone: true,
 };
 
 function defaultSlide(type){
@@ -504,7 +515,7 @@ function slideHTML(slide, idx, total){
         <div class="photodrag" data-idx="${idx}" style="position:absolute;inset:0;${photoCSS(d)}"></div>
         <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,36,60,.28) 0%,rgba(22,36,60,.84) 82%);pointer-events:none"></div>
         ${topBar(true)}
-        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;pointer-events:none">
+        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;pointer-events:none;transform:translateY(${adjY}px)">
           <div><span style="display:inline-block;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.6);color:#fff;font-size:26px;font-weight:700;border-radius:40px;padding:12px 28px">${esc(t.badge)}</span></div>
           <div style="margin-top:44px;font-size:${S(94)}px;font-weight:900;line-height:1.2;letter-spacing:-0.03em;color:#fff;word-break:keep-all">${fmt(d.title)}${redDot(16)}</div>
           <div style="margin-top:30px;font-size:34px;font-weight:500;color:rgba(255,255,255,.86);letter-spacing:-0.01em">${esc(d.subtitle)}</div>
@@ -517,7 +528,7 @@ function slideHTML(slide, idx, total){
         ${hairlines}
         ${topBar(false)}
         ${styleCoverDeco(t)}
-        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;z-index:2">
+        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;z-index:2;transform:translateY(${adjY}px)">
           <div><span style="display:inline-block;font-size:26px;font-weight:700;padding:14px 30px;${styleBadgeCss(t)}">${esc(t.badge)}</span></div>
           <div style="margin-top:48px;font-size:${S(96)}px;font-weight:900;line-height:1.24;letter-spacing:-0.03em;color:${t.text};word-break:keep-all;${styleTitleCss(t)}">${fmt(d.title)}${redDot(18)}</div>
           <div style="margin-top:34px;font-size:34px;font-weight:500;color:${t.sub};letter-spacing:-0.01em">${esc(d.subtitle)}</div>
@@ -531,7 +542,7 @@ function slideHTML(slide, idx, total){
         ${topBar(false)}
         <div style="position:absolute;left:${M}px;right:${M}px;top:225px;bottom:225px;background:#FFFFFF;border-radius:32px;box-shadow:${shadow};overflow:hidden">
           ${(d.ghost||'').trim()? `<div style="position:absolute;right:-50px;bottom:-90px;font-size:600px;font-weight:900;line-height:1;color:#EAF1F8;letter-spacing:-.05em">${esc(d.ghost)}</div>`:''}
-          <div style="position:absolute;left:72px;right:72px;top:96px;bottom:96px">
+          <div style="position:absolute;left:72px;right:72px;top:96px;bottom:96px;transform:translateY(${adjY}px)">
             <div><span style="display:inline-block;background:#16243C;color:#fff;font-size:26px;font-weight:700;border-radius:40px;padding:14px 30px">${esc(t.badge)}</span></div>
             <div style="margin-top:64px;font-size:${S(94)}px;font-weight:900;line-height:1.22;letter-spacing:-0.035em;color:#111111;word-break:keep-all">${fmt(d.title)}${redDot(18)}</div>
             <div style="margin-top:44px;width:56px;height:5px;background:${t.primary}"></div>
@@ -547,7 +558,7 @@ function slideHTML(slide, idx, total){
         <div style="position:absolute;right:-160px;top:-160px;width:520px;height:520px;border-radius:50%;border:2px solid #33517D;opacity:.5"></div>
         <div style="position:absolute;right:-60px;top:-60px;width:520px;height:520px;border-radius:50%;border:2px solid #33517D;opacity:.3"></div>
         ${topBar(false)}
-        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px">
+        <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;transform:translateY(${adjY}px)">
           <div><span style="display:inline-block;background:rgba(82,120,174,.25);border:1.5px solid #5278AE;color:#fff;font-size:26px;font-weight:700;border-radius:40px;padding:12px 28px">${esc(t.badge)}</span></div>
           <div style="margin-top:44px;font-size:${S(94)}px;font-weight:900;line-height:1.2;letter-spacing:-0.03em;color:#fff;word-break:keep-all">${fmtHL(d.title,'#8AA6CC')}${redDot(16)}</div>
           <div style="margin-top:30px;font-size:34px;font-weight:500;color:#8AA6CC;letter-spacing:-0.01em">${esc(d.subtitle)}</div>
@@ -560,7 +571,7 @@ function slideHTML(slide, idx, total){
       <div style="position:absolute;left:0;bottom:0;width:100%;height:14px;background:${t.primary}"></div>
       ${topBar(false)}
       <div style="position:absolute;left:${M}px;top:300px;width:150px;height:6px;background:${t.primary}"></div>
-      <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px">
+      <div style="position:absolute;left:${M}px;right:${M}px;bottom:250px;transform:translateY(${adjY}px)">
         <div><span style="display:inline-block;border:2px solid ${t.primary};color:${t.primary};font-size:26px;font-weight:700;border-radius:40px;padding:12px 28px">${esc(t.badge)}</span></div>
         <div style="margin-top:44px;font-size:${S(94)}px;font-weight:900;line-height:1.22;letter-spacing:-0.035em;color:${t.text};word-break:keep-all">${fmt(d.title)}${redDot(16)}</div>
         <div style="margin-top:30px;font-size:34px;font-weight:500;color:${t.sub};letter-spacing:-0.01em">${esc(d.subtitle)}</div>
@@ -578,7 +589,7 @@ function slideHTML(slide, idx, total){
         ${hairlines}
         ${topBar(false)}
         ${ghost(num, 170, 380)}
-        <div style="position:absolute;left:${M}px;right:${M}px;top:220px;bottom:220px;display:flex;flex-direction:column;justify-content:center;z-index:1">
+        <div style="position:absolute;left:${M}px;right:${M}px;top:220px;bottom:220px;display:flex;flex-direction:column;justify-content:center;z-index:1;transform:translateY(${adjY}px)">
           ${!isMag? `<div style="font-size:60px;font-weight:900;color:${t.primary};letter-spacing:-0.02em;margin-bottom:28px">${num}</div>`:''}
           <div style="font-size:${S(62)}px;font-weight:800;line-height:1.28;color:${t.text};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.title)}${redDot(14)}</div>
           <div style="margin-top:34px;width:56px;height:5px;background:${t.primary}"></div>
@@ -602,7 +613,7 @@ function slideHTML(slide, idx, total){
           ${pf.extra||''}
         </div>`; })()}
       ${ghost(num, 810, 330)}
-      <div style="position:absolute;left:${M}px;right:${M}px;top:884px;z-index:1">
+      <div style="position:absolute;left:${M}px;right:${M}px;top:884px;z-index:1;transform:translateY(${adjY}px)">
         <div style="display:flex;align-items:baseline;gap:20px">
           ${!isMag? `<div style="font-size:50px;font-weight:900;color:${t.primary};letter-spacing:-0.02em">${num}</div>`:''}
           <div style="font-size:${S(52)}px;font-weight:800;color:${t.text};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.title)}${redDot(13)}</div>
@@ -628,7 +639,7 @@ function slideHTML(slide, idx, total){
       ${t.preset==='navy'? `<div style="position:absolute;inset:0;background:linear-gradient(160deg,#16243C 0%,#243B60 100%)"></div>`:''}
       ${hairlines}
       ${topBar(false)}
-      <div style="position:absolute;left:${M}px;right:${M}px;top:200px;bottom:200px;display:flex;flex-direction:column;justify-content:center;z-index:1">
+      <div style="position:absolute;left:${M}px;right:${M}px;top:200px;bottom:200px;display:flex;flex-direction:column;justify-content:center;z-index:1;transform:translateY(${adjY}px)">
         ${kicker(d.label)}
         <div style="margin-top:${(d.label||'').trim()?'30':'0'}px;font-size:${S(64)}px;font-weight:800;line-height:1.28;color:${t.text};letter-spacing:-0.03em;word-break:keep-all">${fmt(d.title)}${redDot(14)}</div>
         <div style="margin-top:32px;font-size:${bodySize}px;font-weight:400;line-height:${bodyLH};color:${bodyGray};letter-spacing:-0.01em;word-break:keep-all">${nl2br(d.body)}</div>
@@ -670,10 +681,36 @@ function fitPreview(){
   const sc = Math.min(availH/1350, availW/1080);
   const pv = document.getElementById('preview');
   pv.style.transform = `scale(${sc})`;
+  const sz = document.getElementById('safezone');
+  if (sz) sz.style.transform = `scale(${sc})`;
   const wrap = document.getElementById('previewWrap');
   wrap.style.width = (1080*sc)+'px'; wrap.style.height = (1350*sc)+'px';
 }
 window.addEventListener('resize', ()=>{fitPreview();});
+
+/* 인스타 세이프존 가이드 오버레이 (조사 확정 수치: 그리드 3:4 좌우 34px 크롭 / 정사각뷰 상하 135px 크롭) */
+const GRID_CROP = 34;   // 프로필 그리드(3:4) 좌우 크롭: (1080 - 1350*3/4)/2 ≈ 33.75
+const SQ_CROP = 135;    // 정사각(1:1) 뷰 상하 크롭: (1350 - 1080)/2
+function renderSafezone(){
+  const sz = document.getElementById('safezone');
+  if (!sz) return;
+  if (!state.safezone){ sz.innerHTML=''; return; }
+  sz.innerHTML =
+    // 프로필 그리드(3:4) 좌우 크롭 영역 (빨강)
+    `<div class="band" style="left:0;top:0;width:${GRID_CROP}px;height:1350px"></div>`+
+    `<div class="band" style="right:0;top:0;width:${GRID_CROP}px;height:1350px"></div>`+
+    `<div class="lineG" style="left:${GRID_CROP}px;top:0;width:2px;height:1350px"></div>`+
+    `<div class="lineG" style="right:${GRID_CROP}px;top:0;width:2px;height:1350px"></div>`+
+    // 정사각(1:1) 뷰 상하 크롭 영역 (주황 빗금)
+    `<div class="bandsq" style="left:0;top:0;width:1080px;height:${SQ_CROP}px"></div>`+
+    `<div class="bandsq" style="left:0;bottom:0;width:1080px;height:${SQ_CROP}px"></div>`+
+    `<hr class="lineS" style="left:0;top:${SQ_CROP}px;width:1080px;margin:0"/>`+
+    `<hr class="lineS" style="left:0;bottom:${SQ_CROP}px;width:1080px;margin:0"/>`+
+    // 라벨
+    `<div class="szlabel" style="left:${GRID_CROP+8}px;top:${SQ_CROP+8}px;background:rgba(238,0,0,.85)">← 그리드에서 잘림 · 34px</div>`+
+    `<div class="szlabel" style="left:8px;top:${SQ_CROP+40}px;background:rgba(230,120,0,.9)">정사각 화면에선 위아래 135px도 잘림</div>`;
+}
+function toggleSafezone(on){ state.safezone = on; renderSafezone(); }
 
 function render(){
   const total = state.slides.length;
@@ -703,6 +740,7 @@ function render(){
     frame.style.transform = `scale(${(wrap.clientWidth||180)/1080})`;
   });
   fitPreview();
+  renderSafezone();
   autosave();
 }
 
@@ -766,9 +804,10 @@ function renderPanel(){
   html += tplBox(d);
   d.adj = d.adj || {y:0, scale:100, color:''};
   html += `<div class="field"><label>텍스트 크기 <span id="f_adjSv">${d.adj.scale}%</span></label><input type="range" id="f_adjS" min="70" max="140" value="${d.adj.scale}"></div>`;
+  html += `<div class="field"><label>텍스트 세로 위치 <span id="f_adjYv">${d.adj.y}px</span></label><input type="range" id="f_adjY" min="-320" max="320" value="${d.adj.y}"></div>
+    <p class="hint">세이프존(빨강·주황선) 밖으로 넘는 글자는 인스타 그리드에서 잘립니다. 위 슬라이더로 안전 영역 안으로 옮기세요.</p>`;
   if (d.tpl){
-    html += `<div class="field"><label>텍스트 세로 위치 <span id="f_adjYv">${d.adj.y}px</span></label><input type="range" id="f_adjY" min="-320" max="320" value="${d.adj.y}"></div>
-    <div class="row">
+    html += `<div class="row">
       <div class="field"><label>오버레이 텍스트 컬러</label><input type="color" id="f_adjC" value="${d.adj.color||'#111111'}"></div>
       <button class="btn sub" id="f_adjCauto" style="flex:none">자동</button>
     </div>
@@ -1370,6 +1409,8 @@ if (_q.get('ct') && CONTENT_TYPES[_q.get('ct')]){
   if (_d) state.slides.forEach(s=>{ if (s.type==='ending') s.data.disclaimer = _d; });
 }
 renderTypePanel(); renderThemePanel(); render(); renderPanel();
+// 세이프존 토글 연결
+(function(){ const cb=document.getElementById('szToggle'); if(cb){ cb.checked=state.safezone; cb.onchange=()=>toggleSafezone(cb.checked); } })();
 // 렌더 모드: ?render=1 → UI 없이 현재 슬라이드만 1080×1350 원본 크기로 표시 (헤드리스 캡처용)
 if (_q.has('render')){
   const holder = document.createElement('div');
